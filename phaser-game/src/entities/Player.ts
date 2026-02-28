@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { DEPTH } from '../config/constants'
 
 export type Direction = 'up' | 'down' | 'left' | 'right'
 type PlayerConfig = {
@@ -58,14 +59,14 @@ export class Player {
     this.sprite = scene.add.image(config.startX, config.startY, 'player-down')
     this.sprite.setOrigin(0.5, 1)
     this.sprite.setScale(config.scale)
-    this.sprite.setDepth(this.sprite.y)
+    this.sprite.setDepth(DEPTH.PLAYER)
   }
 
   /** Call from scene.update() */
   update() {
     this.updateMovement()
     this.updateFacingFromLastKeyPressed()
-    this.sprite.setDepth(this.sprite.y)
+    this.sprite.setDepth(DEPTH.PLAYER)
   }
 
   /** Expose the underlying image for camera follow, collisions later, etc. */

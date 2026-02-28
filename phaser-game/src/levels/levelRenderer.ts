@@ -1,5 +1,6 @@
 import type Phaser from 'phaser'
 import type { LevelData } from './types'
+import { DEPTH } from '../config/constants'
 
 export function renderLevel(scene: Phaser.Scene, level: LevelData) {
   const { world, images } = level
@@ -15,6 +16,6 @@ export function renderLevel(scene: Phaser.Scene, level: LevelData) {
     const img = scene.add.image(obj.x, obj.y, obj.key)
     img.setOrigin(obj.originX ?? 0.5, obj.originY ?? 0.5)
     if (obj.scale !== undefined) img.setScale(obj.scale)
-    img.setDepth(img.y)
+    img.setDepth(DEPTH.BUILDING)
   }
 }
