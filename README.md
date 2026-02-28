@@ -22,6 +22,7 @@ This makes the project:
 ---
 
 ## 📁 Directory Structure
+```
 src/
 	config/
 	constants.ts # Shared constants (scale, etc.)
@@ -43,6 +44,7 @@ scenes/
 	GameScene.ts # Main scene (orchestration only)
 
 main.ts # Phaser game config / entry point
+```
 
 ## 🧠 Architecture Breakdown
 
