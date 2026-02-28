@@ -3,6 +3,13 @@ export type LevelAsset = {
   path: string
 }
 
+export type ColliderBox = {
+  offsetX: number,
+  offsetY: number,
+  width: number,
+  height: number
+}
+
 export type LevelImage = {
   key: string
   x: number
@@ -10,6 +17,7 @@ export type LevelImage = {
   scale?: number
   originX?: number
   originY?: number
+  collider?: ColliderBox
 }
 
 export type LevelData = {

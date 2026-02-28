@@ -26,12 +26,21 @@ export default class GameScene extends Phaser.Scene {
       console.error('LOAD ERROR:', file?.key, file?.src)
     })
 
+    // 1x1 texture for invisible collider bodies (used by levelRenderer)
+    if (!this.textures.exists('__collider__')) {
+      const g = this.add.graphics()
+      g.fillStyle(0xffffff, 1)
+      g.fillRect(0, 0, 1, 1)
+      g.generateTexture('__collider__', 1, 1)
+      g.destroy()
+    }
+
     loadImages(this.load, this.level.assets)
     loadImages(this.load, PLAYER_ASSETS)
   }
 
   create() {
-    renderLevel(this, this.level)
+    const { colliders } = renderLevel(this, this.level)
 
     this.cursors = this.input.keyboard.createCursorKeys()
     this.player = new Player(this, this.cursors, {
@@ -39,6 +48,9 @@ export default class GameScene extends Phaser.Scene {
       startY: this.level.spawn.player.y,
       scale: SCALE.PLAYER,
     })
+
+    // collisions
+    this.physics.add.collider(this.player.gameObject, colliders)
 
     this.cameras.main.startFollow(this.player.gameObject)
     this.cameras.main.setDeadzone(0, 0)
