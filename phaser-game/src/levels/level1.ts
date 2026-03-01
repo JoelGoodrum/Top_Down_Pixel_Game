@@ -62,13 +62,13 @@ export const level1: LevelData = {
   ],
 
   interactables: [
-      {
-        type: 'door',
-        x: 100,
-        y: 100,
-        width: 450,
-        height: 360,
-        targetLevel: 'officeInterior',
-      }
-  ]
+    {
+      type: 'door',
+      x: 100,
+      y: 100,
+      width: 450,
+      height: 360,
+      targetLevel: 'officeInterior',
+    },
+  ],
 }

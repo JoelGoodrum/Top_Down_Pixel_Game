@@ -41,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
         cursors: this.cursors,
         isTransitioning: {
           get: () => this.isTransitioning,
-          set: v => (this.isTransitioning = v),
+          set: (v) => (this.isTransitioning = v),
         },
       })
 

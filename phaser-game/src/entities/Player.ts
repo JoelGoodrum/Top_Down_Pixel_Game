@@ -34,11 +34,7 @@ export class Player {
     this.cursors = cursors
     this.speed = config.speed ?? DEFAULT_SPEED
 
-    this.sprite = scene.physics.add.sprite(
-      config.startX,
-      config.startY,
-      'player-down'
-    )
+    this.sprite = scene.physics.add.sprite(config.startX, config.startY, 'player-down')
 
     this.sprite.setOrigin(0.5, 1)
     this.sprite.setScale(config.scale)

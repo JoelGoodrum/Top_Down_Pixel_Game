@@ -3,7 +3,7 @@ import { officeInterior } from './officeInterior'
 
 export const LEVELS = {
   level1,
-  officeInterior
+  officeInterior,
 } as const
 
 export type LevelKey = keyof typeof LEVELS

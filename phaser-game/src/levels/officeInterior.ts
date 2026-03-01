@@ -12,13 +12,9 @@ export const officeInterior: LevelData = {
     player: { x: 600, y: 650 },
   },
 
-  assets: [
-    { key: 'office-interior', path: '/assets/sprites/interiors/office-interior.png' },
-  ],
+  assets: [{ key: 'office-interior', path: '/assets/sprites/interiors/office-interior.png' }],
 
-  images: [
-      { key: 'office-interior', x: 600, y: 400, scale: 1, originX: 0.5, originY: 0.5 },
-  ],
+  images: [{ key: 'office-interior', x: 600, y: 400, scale: 1, originX: 0.5, originY: 0.5 }],
 
   interactables: [
     {

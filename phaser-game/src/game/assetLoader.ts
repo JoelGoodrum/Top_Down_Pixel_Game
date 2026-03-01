@@ -8,7 +8,7 @@ export function loadAll(scene: Phaser.Scene, assets: ImageAsset[]) {
 }
 
 export function missingTextures(scene: Phaser.Scene, assets: ImageAsset[]) {
-  return assets.filter(a => !scene.textures.exists(a.key))
+  return assets.filter((a) => !scene.textures.exists(a.key))
 }
 
 export function loadMissingAndThen(scene: Phaser.Scene, assets: ImageAsset[], onDone: () => void) {
