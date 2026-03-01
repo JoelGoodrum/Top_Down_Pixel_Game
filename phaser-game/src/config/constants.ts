@@ -7,4 +7,5 @@ export const DEPTH = {
   UI: 0,
   PLAYER: -1,
   BUILDING: -2,
+  DOOR: -3,
 } as const

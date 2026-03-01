@@ -1,0 +1,36 @@
+# =========================
+# Node project (phaser-game)
+# =========================
+
+phaser-game/node_modules/
+phaser-game/dist/
+phaser-game/build/
+phaser-game/.vite/
+phaser-game/*.tsbuildinfo
+phaser-game/coverage/
+
+# Environment variables
+phaser-game/.env
+phaser-game/.env.local
+phaser-game/.env.*.local
+
+# Logs
+phaser-game/npm-debug.log*
+phaser-game/yarn-debug.log*
+phaser-game/yarn-error.log*
+phaser-game/pnpm-debug.log*
+
+# =========================
+# Global ignores
+# =========================
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Logs (anywhere)
+*.log
