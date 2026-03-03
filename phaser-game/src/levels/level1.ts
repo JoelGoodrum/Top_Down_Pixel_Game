@@ -3,8 +3,8 @@ import { SCALE } from '../config/constants'
 
 export const level1: LevelData = {
   world: {
-    width: 5000,
-    height: 2500,
+    width: 2500,
+    height: 1350,
     backgroundColor: 0x2ecc71,
   },
 
@@ -24,7 +24,7 @@ export const level1: LevelData = {
   images: [
     {
       key: 'office',
-      x: 800,
+      x: 400,
       y: 800,
       scale: SCALE.BUILDING,
       originX: 0.5,
@@ -34,7 +34,7 @@ export const level1: LevelData = {
     },
     {
       key: 'exec-tower',
-      x: 1500,
+      x: 1100,
       y: 1450,
       scale: SCALE.BUILDING + 1.2,
       originX: 0.5,
@@ -44,7 +44,7 @@ export const level1: LevelData = {
     },
     {
       key: 'lofts',
-      x: 2250,
+      x: 1850,
       y: 1100,
       scale: SCALE.BUILDING + 0.5,
       originX: 0.5,
@@ -54,7 +54,7 @@ export const level1: LevelData = {
     },
     {
       key: 'bar',
-      x: 800,
+      x: 400,
       y: 1390,
       scale: SCALE.BUILDING + 0.1,
       originX: 0.5,
@@ -64,7 +64,7 @@ export const level1: LevelData = {
 
     {
       key: 'park',
-      x: 1480,
+      x: 1080,
       y: 1350,
       scale: SCALE.BUILDING,
       originX: 0.5,
@@ -74,7 +74,7 @@ export const level1: LevelData = {
     },
     {
       key: 'pharmacy',
-      x: 2150,
+      x: 1750,
       y: 1390,
       scale: SCALE.BUILDING + 0.1,
       originX: 0.5,
