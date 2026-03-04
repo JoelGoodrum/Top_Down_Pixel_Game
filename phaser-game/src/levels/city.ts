@@ -1,15 +1,11 @@
 import type { LevelData } from './types'
 import { SCALE } from '../config/constants'
 
-export const level1: LevelData = {
+export const city: LevelData = {
   world: {
-    width: 5000,
-    height: 2500,
+    width: 2500,
+    height: 1350,
     backgroundColor: 0x2ecc71,
-  },
-
-  spawn: {
-    player: { x: 1100, y: 790 },
   },
 
   assets: [
@@ -24,7 +20,7 @@ export const level1: LevelData = {
   images: [
     {
       key: 'office',
-      x: 800,
+      x: 400,
       y: 800,
       scale: SCALE.BUILDING,
       originX: 0.5,
@@ -34,7 +30,7 @@ export const level1: LevelData = {
     },
     {
       key: 'exec-tower',
-      x: 1500,
+      x: 1100,
       y: 1450,
       scale: SCALE.BUILDING + 1.2,
       originX: 0.5,
@@ -44,7 +40,7 @@ export const level1: LevelData = {
     },
     {
       key: 'lofts',
-      x: 2250,
+      x: 1850,
       y: 1100,
       scale: SCALE.BUILDING + 0.5,
       originX: 0.5,
@@ -54,7 +50,7 @@ export const level1: LevelData = {
     },
     {
       key: 'bar',
-      x: 800,
+      x: 400,
       y: 1390,
       scale: SCALE.BUILDING + 0.1,
       originX: 0.5,
@@ -64,7 +60,7 @@ export const level1: LevelData = {
 
     {
       key: 'park',
-      x: 1480,
+      x: 1080,
       y: 1350,
       scale: SCALE.BUILDING,
       originX: 0.5,
@@ -74,7 +70,7 @@ export const level1: LevelData = {
     },
     {
       key: 'pharmacy',
-      x: 2150,
+      x: 1750,
       y: 1390,
       scale: SCALE.BUILDING + 0.1,
       originX: 0.5,
@@ -87,11 +83,56 @@ export const level1: LevelData = {
   interactables: [
     {
       type: 'door',
-      x: 100,
-      y: 100,
-      width: 450,
-      height: 360,
+      x: 400,
+      y: 670,
+      width: 100,
+      height: 50,
       targetLevel: 'officeInterior',
+      targetSpawn: { x: 400, y: 750, facing: 'up' },
+    },
+    {
+      type: 'door',
+      x: 320,
+      y: 1180,
+      width: 100,
+      height: 50,
+      targetLevel: 'barInterior',
+      targetSpawn: { x: 400, y: 550, facing: 'up' },
+    },
+    {
+      type: 'door',
+      x: 1700,
+      y: 1180,
+      width: 100,
+      height: 50,
+      targetLevel: 'pharmacyInterior',
+      targetSpawn: { x: 500, y: 700, facing: 'up' },
+    },
+    {
+      type: 'door',
+      x: 1150,
+      y: 700,
+      width: 100,
+      height: 50,
+      targetLevel: 'towerLobby',
+      targetSpawn: { x: 400, y: 600, facing: 'up' },
+    },
+    {
+      type: 'door',
+      x: 1850,
+      y: 700,
+      width: 100,
+      height: 50,
+      targetLevel: 'loftHall',
+      targetSpawn: { x: 150, y: 500, facing: 'down' },
+    },
+    {
+      type: 'item',
+      x: 400,
+      y: 300,
+      width: 1,
+      height: 1,
+      name: 'cigarette',
     },
   ],
 }

@@ -1,16 +1,29 @@
 export class PlayerState {
-  private money: number
-  constructor(initialCash = 200) {
-    this.money = initialCash
-    this.items = ['banana', 'key']
+  private items: string[]
+
+  constructor() {
+    this.items = []
   }
-  getMoney() {
-    return this.money
+
+  addItem(item: string): void {
+    if (!this.items.includes(item)) {
+      this.items.push(item)
+    }
   }
-  addItem(item: string) {
-    this.items.push(item)
+
+  removeItem(item: string): void {
+    this.items = this.items.filter((i) => i !== item)
   }
-  getItems() {
-    return [this.items.join(', ')]
+
+  hasItem(item: string): boolean {
+    return this.items.includes(item)
+  }
+
+  getItems(): string[] {
+    return [...this.items] // return copy
+  }
+
+  clearItems(): void {
+    this.items = []
   }
 }

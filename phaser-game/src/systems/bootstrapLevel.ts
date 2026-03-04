@@ -1,35 +1,48 @@
 import Phaser from 'phaser'
 import { Player } from '../entities/Player'
 import { SCALE } from '../config/constants'
-import type { LevelData } from '../levels/types'
+import type { LevelData, Spawn } from '../levels/types'
 import { renderLevel } from '../levels/levelRenderer'
-import { bindAutoEnterDoors } from './doorTransitions'
+import { doorTransitions } from './doorTransitions'
+import { bindItemPickups } from './bindItemPickups'
+import type { PlayerState } from '../entities/PlayerState'
+import type { Hud } from '../ui/hud'
 
 export function bootstrapLevel(opts: {
   scene: Phaser.Scene
   level: LevelData
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
   isTransitioning: { get: () => boolean; set: (v: boolean) => void }
+  playerState: PlayerState
+  hud: Hud
+  spawn?: Spawn
 }) {
-  const { scene, level, cursors, isTransitioning } = opts
+  const { scene, level, cursors, isTransitioning, playerState, hud, spawn } = opts
 
-  const { colliders, doors } = renderLevel(scene, level)
+  const { colliders, doors, items } = renderLevel(scene, level)
+
+  const start = spawn ?? level.spawn.player
 
   const player = new Player(scene, cursors, {
-    startX: level.spawn.player.x,
-    startY: level.spawn.player.y,
+    startX: start.x,
+    startY: start.y,
     scale: SCALE.PLAYER,
+    facing: spawn?.facing,
   })
 
   scene.physics.add.collider(player.gameObject, colliders)
 
-  bindAutoEnterDoors({
+  doorTransitions({
     scene,
     playerBody: player.gameObject,
     doors,
     getIsTransitioning: isTransitioning.get,
     setIsTransitioning: isTransitioning.set,
   })
+
+  if (items) {
+    bindItemPickups({ scene, player, items, playerState, hud })
+  }
 
   scene.cameras.main.startFollow(player.gameObject)
   scene.cameras.main.setDeadzone(0, 0)

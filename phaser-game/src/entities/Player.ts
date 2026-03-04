@@ -8,11 +8,12 @@ type PlayerConfig = {
   startY: number
   scale: number
   speed?: number
+  facing?: Direction
 }
 
 const DEFAULT_SPEED = 180
 
-// ✅ NEW: centralized collider config
+// Centralized collider config
 const PLAYER_COLLIDER = {
   widthRatio: 0.35,
   heightRatio: 0.25,
@@ -34,7 +35,10 @@ export class Player {
     this.cursors = cursors
     this.speed = config.speed ?? DEFAULT_SPEED
 
-    this.sprite = scene.physics.add.sprite(config.startX, config.startY, 'player-down')
+    const initialFacing: Direction = config.facing ?? 'down'
+    this.lastDirection = initialFacing
+
+    this.sprite = scene.physics.add.sprite(config.startX, config.startY, `player-${initialFacing}`)
 
     this.sprite.setOrigin(0.5, 1)
     this.sprite.setScale(config.scale)
@@ -43,7 +47,6 @@ export class Player {
     const body = this.sprite.body as Phaser.Physics.Arcade.Body
     body.setCollideWorldBounds(true)
 
-    // ✅ Use constants instead of inline math
     body.setSize(
       this.sprite.width * PLAYER_COLLIDER.widthRatio,
       this.sprite.height * PLAYER_COLLIDER.heightRatio

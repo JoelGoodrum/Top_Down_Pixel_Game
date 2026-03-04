@@ -1,10 +1,11 @@
 import type Phaser from 'phaser'
 import type { LevelData } from './types'
-import { DEPTH } from '../config/constants'
+import { DEPTH, SCALE } from '../config/constants'
 
 export function renderLevel(scene: Phaser.Scene, level: LevelData) {
   const colliders = scene.physics.add.staticGroup()
   const doors = scene.physics.add.staticGroup()
+  const items = scene.physics.add.staticGroup()
 
   scene.cameras.main.setBackgroundColor(level.world.backgroundColor)
   scene.physics.world.setBounds(0, 0, level.world.width, level.world.height)
@@ -26,34 +27,43 @@ export function renderLevel(scene: Phaser.Scene, level: LevelData) {
 
       s.setDisplaySize(obj.collider.width, obj.collider.height)
       s.refreshBody()
-      s.setAlpha(0) // set to 0.25 temporarily if you want to see hitboxes
+      s.setAlpha(0)
       s.setDepth(DEPTH.BUILDING + 1)
 
       colliders.add(s)
     }
   }
 
-  // --- interactables (doors etc.) ---
+  // --- interactables ---
   if (level.interactables) {
     for (const obj of level.interactables) {
       if (obj.type === 'door') {
-        // Treat obj.x,obj.y as bottom-center (like building images)
         const s = scene.physics.add.staticImage(obj.x, obj.y, '__collider__')
         s.setOrigin(0.5, 1)
-
         s.setDisplaySize(obj.width, obj.height)
         s.refreshBody()
 
-        // Store data for GameScene overlap handler
         s.setData('targetLevel', obj.targetLevel)
+        s.setData('targetSpawn', obj.targetSpawn)
 
-        s.setAlpha(0) // set to 0.25 temporarily if you want to see door zone
+        s.setAlpha(0)
         s.setDepth(DEPTH.DOOR)
-
         doors.add(s)
+      } else if (obj.type === 'item') {
+        // ✅ Make the item a physics object so we can overlap it
+        const it = scene.physics.add.staticImage(obj.x, obj.y, obj.name)
+        it.setOrigin(0.5, 1) // pick a consistent origin; bottom-center feels good
+        it.setScale(SCALE.ITEMS)
+        it.setDepth(DEPTH.ITEMS ?? DEPTH.BUILDING) // if you have DEPTH.ITEMS use it
+        it.refreshBody()
+
+        // ✅ store data so GameScene can read which item this was
+        it.setData('itemName', obj.name)
+
+        items.add(it)
       }
     }
   }
 
-  return { colliders, doors }
+  return { colliders, doors, items }
 }

@@ -1,6 +1,7 @@
 export const SCALE = {
   BUILDING: 0.55,
   PLAYER: 0.1,
+  ITEMS: 0.05,
 } as const
 
 export const DEPTH = {
