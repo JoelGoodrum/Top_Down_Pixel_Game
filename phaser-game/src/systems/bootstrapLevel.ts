@@ -50,8 +50,11 @@ export function bootstrapLevel(opts: {
 
   doorTransitions({
     scene,
+    levelKey,
     playerBody: player.gameObject,
     doors,
+    playerState,
+    dialogController,
     getIsTransitioning: isTransitioning.get,
     setIsTransitioning: isTransitioning.set,
   })

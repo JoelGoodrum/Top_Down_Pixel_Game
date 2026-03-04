@@ -53,6 +53,14 @@ export class PlayerState {
     this.progression.markVisitedRoom115()
   }
 
+  hasSeenTowerKeycardHint(): boolean {
+    return this.progression.hasSeenTowerKeycardHint()
+  }
+
+  markSeenTowerKeycardHint(): void {
+    this.progression.markSeenTowerKeycardHint()
+  }
+
   clearItems(): void {
     this.items = []
     this.collectedItemIds.clear()

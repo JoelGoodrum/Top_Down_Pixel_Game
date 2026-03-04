@@ -20,6 +20,14 @@ export function progressionPoints(opts: {
 
     if (
       levelKey === 'loftHall' &&
+      interactable.targetLevel === 'room115' &&
+      !playerState.hasSeenTowerKeycardHint()
+    ) {
+      return false
+    }
+
+    if (
+      levelKey === 'loftHall' &&
       interactable.targetLevel === 'room101' &&
       !playerState.hasVisitedRoom115()
     ) {
