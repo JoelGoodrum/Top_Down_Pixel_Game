@@ -9,6 +9,7 @@ export class DialogController {
   private dialogLines: readonly string[] = []
   private dialogBox?: Phaser.GameObjects.Rectangle
   private dialogText?: Phaser.GameObjects.Text
+  private onDialogComplete?: () => void
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene
@@ -26,8 +27,8 @@ export class DialogController {
     this.startDialog(dialog)
   }
 
-  startDialogLines(id: string, lines: readonly string[], repeat = true) {
-    this.startDialog({ id, lines, repeat })
+  startDialogLines(id: string, lines: readonly string[], repeat = true, onComplete?: () => void) {
+    this.startDialog({ id, lines, repeat }, onComplete)
   }
 
   advanceDialog() {
@@ -49,7 +50,8 @@ export class DialogController {
     this.destroyDialog()
   }
 
-  private startDialog(dialog: LevelStartingDialog) {
+  private startDialog(dialog: LevelStartingDialog, onComplete?: () => void) {
+    this.onDialogComplete = onComplete
     this.dialogLines = dialog.lines
     this.dialogIndex = 0
     if (!dialog.repeat) {
@@ -76,11 +78,16 @@ export class DialogController {
   }
 
   private destroyDialog() {
+    const onComplete = this.onDialogComplete
+
     this.dialogText?.destroy()
     this.dialogBox?.destroy()
     this.dialogText = undefined
     this.dialogBox = undefined
     this.dialogLines = []
     this.dialogIndex = 0
+    this.onDialogComplete = undefined
+
+    onComplete?.()
   }
 }
