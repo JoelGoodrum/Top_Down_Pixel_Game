@@ -29,11 +29,28 @@ export function doorTransitions(opts: {
     setIsTransitioning,
   } = opts
 
+  let interactionLockDoor:
+    | Phaser.Types.Physics.Arcade.GameObjectWithBody
+    | Phaser.Physics.Arcade.Body
+    | Phaser.Physics.Arcade.StaticBody
+    | undefined
+
+  scene.events.on('update', () => {
+    if (!interactionLockDoor || dialogController.isActive()) {
+      return
+    }
+
+    if (!scene.physics.overlap(playerBody, interactionLockDoor)) {
+      interactionLockDoor = undefined
+    }
+  })
+
   scene.physics.add.overlap(
     playerBody,
     doors,
     (_player, doorObj) => {
       if (getIsTransitioning()) return
+      if (interactionLockDoor === doorObj) return
 
       const targetLevel = (doorObj as DoorObj).getData?.('targetLevel') as LevelKey | undefined
       const targetSpawn = (doorObj as DoorObj).getData?.('targetSpawn') as Spawn | undefined
@@ -56,6 +73,8 @@ export function doorTransitions(opts: {
             'I have a friend who lives in apartment 115, he might be able to help.',
             'Hurry!',
           ])
+
+          interactionLockDoor = doorObj as Phaser.Types.Physics.Arcade.GameObjectWithBody
         }
 
         return
