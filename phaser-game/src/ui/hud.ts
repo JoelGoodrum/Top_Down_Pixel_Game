@@ -1,27 +1,40 @@
 import type Phaser from 'phaser'
-import type { PlayerState } from '../entities/PlayerState'
-import { DEPTH } from '../config/constants'
+import { PlayerState } from '../entities/PlayerState'
 
 export type Hud = {
-  sync: () => void
+  render: () => void
+  destroy: () => void
 }
+
 export function createHud(scene: Phaser.Scene, playerState: PlayerState): Hud {
-  const cashText = scene.add
-    .text(12, 12, '', { fontSize: '32px', fill: '#000' })
-    .setScrollFactor(0)
-    .setDepth(DEPTH.UI)
   const itemsText = scene.add
-    .text(12, 44, '', { fontSize: '32px', fill: '#000' })
+    .text(16, 16, '', {
+      fontSize: '20px',
+      color: '#000',
+      backgroundColor: '#ffffff',
+    })
+    .setPadding(8)
     .setScrollFactor(0)
-    .setDepth(DEPTH.UI)
-  const sync = () => {
-    cashText.setText(`Cash: $${playerState.getMoney()}`)
-    itemsText.setText(`Items: ${playerState.getItems()}`)
+    .setDepth(1000) // always on top
+
+  function render() {
+    const items = playerState.getItems()
+
+    if (items.length === 0) {
+      itemsText.setText('Inventory: (empty)')
+      return
+    }
+
+    itemsText.setText(`Inventory:\n${items.join('\n')}`)
   }
 
-  sync()
+  // initial render
+  render()
 
   return {
-    sync,
+    render,
+    destroy() {
+      itemsText.destroy()
+    },
   }
 }

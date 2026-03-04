@@ -1,5 +1,10 @@
 ﻿import type { LevelKey } from './index' // or '../levels' depending on your exports
 
+export type Spawn = {
+  x: number
+  y: number
+  facing?: 'up' | 'down' | 'left' | 'right'
+}
 export type LevelAsset = {
   key: string
   path: string
@@ -33,10 +38,15 @@ export type Interactable =
   | (InteractableBase & {
       type: 'door'
       targetLevel: LevelKey
+      targetSpawn: Spawn
     })
   | (InteractableBase & {
       type: 'npc'
       dialog: string
+    })
+  | (InteractableBase & {
+      type: 'item'
+      name: string
     })
 
 export type LevelData = {

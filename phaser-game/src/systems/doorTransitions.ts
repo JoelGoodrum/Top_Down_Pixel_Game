@@ -1,11 +1,12 @@
-import Phaser from 'phaser'
+import type Phaser from 'phaser'
 import type { LevelKey } from '../levels'
+import type { Spawn } from '../levels/types'
 
 type DoorObj = Phaser.GameObjects.GameObject & {
   getData?: (key: string) => unknown
 }
 
-export function bindAutoEnterDoors(opts: {
+export function doorTransitions(opts: {
   scene: Phaser.Scene
   playerBody: Phaser.GameObjects.GameObject
   doors: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group
@@ -20,11 +21,13 @@ export function bindAutoEnterDoors(opts: {
     (_player, doorObj) => {
       if (getIsTransitioning()) return
 
-      const target = (doorObj as DoorObj).getData?.('targetLevel') as LevelKey | undefined
-      if (!target) return
+      const targetLevel = (doorObj as DoorObj).getData?.('targetLevel') as LevelKey | undefined
+      const targetSpawn = (doorObj as DoorObj).getData?.('targetSpawn') as Spawn | undefined
+
+      if (!targetLevel) return
 
       setIsTransitioning(true)
-      scene.scene.start('GameScene', { levelKey: target })
+      scene.scene.start('GameScene', { levelKey: targetLevel, spawn: targetSpawn })
     },
     undefined,
     scene
