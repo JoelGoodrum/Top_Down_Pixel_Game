@@ -57,7 +57,7 @@ export type LevelData = {
   }
   assets: readonly LevelAsset[]
   images: readonly LevelImage[]
-  spawn: {
+  spawn?: {
     player: { x: number; y: number }
   }
   interactables?: readonly Interactable[] // ✅ lowercase
