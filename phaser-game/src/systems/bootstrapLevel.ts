@@ -6,8 +6,10 @@ import type { LevelKey } from '../levels'
 import { renderLevel } from '../levels/levelRenderer'
 import { doorTransitions } from './doorTransitions'
 import { bindItemPickups } from './bindItemPickups'
+import { bindNpcInteractions } from './bindNpcInteractions'
 import type { PlayerState } from '../entities/PlayerState'
 import type { Hud } from '../ui/hud'
+import type { DialogController } from './dialogController'
 
 export function bootstrapLevel(opts: {
   scene: Phaser.Scene
@@ -17,11 +19,13 @@ export function bootstrapLevel(opts: {
   isTransitioning: { get: () => boolean; set: (v: boolean) => void }
   playerState: PlayerState
   hud: Hud
+  dialogController: DialogController
   spawn?: Spawn
 }) {
-  const { scene, level, levelKey, cursors, isTransitioning, playerState, hud, spawn } = opts
+  const { scene, level, levelKey, cursors, isTransitioning, playerState, hud, dialogController, spawn } =
+    opts
 
-  const { colliders, doors, items } = renderLevel(scene, level, levelKey, playerState)
+  const { colliders, doors, items, npcs } = renderLevel(scene, level, levelKey, playerState)
 
   const start = spawn ??
     level.spawn?.player ?? { x: level.world.width / 2, y: level.world.height / 2 }
@@ -45,6 +49,10 @@ export function bootstrapLevel(opts: {
 
   if (items) {
     bindItemPickups({ scene, player, items, playerState, hud })
+  }
+
+  if (npcs) {
+    bindNpcInteractions({ scene, player, npcs, doors, playerState, hud, dialogController })
   }
 
   scene.cameras.main.startFollow(player.gameObject)

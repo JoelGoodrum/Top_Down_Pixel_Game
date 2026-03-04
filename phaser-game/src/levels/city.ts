@@ -15,6 +15,7 @@ export const city: LevelData = {
     { key: 'bar', path: '/assets/sprites/buildings/bar.png' },
     { key: 'pharmacy', path: '/assets/sprites/buildings/pharmacy.png' },
     { key: 'park', path: '/assets/sprites/buildings/park.png' },
+    { key: 'security-guard-npc', path: '/assets/sprites/NPCs/security-guard-npc.png' },
   ],
 
   levelStartingDialog: {
@@ -122,6 +123,20 @@ export const city: LevelData = {
       height: 50,
       targetLevel: 'towerLobby',
       targetSpawn: { x: 400, y: 600, facing: 'up' },
+    },
+    {
+      type: 'npc',
+      id: 'security-guard',
+      x: 1100,
+      y: 760,
+      width: 80,
+      height: 140,
+      spriteKey: 'security-guard-npc',
+      dialog: ['Only executives are allowed in. Some smokes would be nice though...'],
+      requiredItem: 'cigarette',
+      dialogIfHasItem: ['You have some smokes? I will go to the park and enjoy them haha!'],
+      consumeRequiredItem: true,
+      removeAfterTrade: true,
     },
     {
       type: 'door',

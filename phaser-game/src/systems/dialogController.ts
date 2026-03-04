@@ -26,6 +26,10 @@ export class DialogController {
     this.startDialog(dialog)
   }
 
+  startDialogLines(id: string, lines: readonly string[], repeat = true) {
+    this.startDialog({ id, lines, repeat })
+  }
+
   advanceDialog() {
     this.dialogIndex += 1
 

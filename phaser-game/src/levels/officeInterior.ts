@@ -11,7 +11,10 @@ export const officeInterior: LevelData = {
     player: { x: 700, y: 250 },
   },
 
-  assets: [{ key: 'office-interior', path: '/assets/sprites/interiors/office-interior.png' }],
+  assets: [
+    { key: 'office-interior', path: '/assets/sprites/interiors/office-interior.png' },
+    { key: 'office-lady-npc', path: '/assets/sprites/NPCs/office-lady-npc.png' },
+  ],
 
   images: [{ key: 'office-interior', x: 400, y: 400, scale: 0.7, originX: 0.5, originY: 0.5 }],
 
@@ -26,6 +29,16 @@ export const officeInterior: LevelData = {
   },
 
   interactables: [
+    {
+      type: 'npc',
+      id: 'office-lady',
+      x: 230,
+      y: 250,
+      width: 80,
+      height: 140,
+      spriteKey: 'office-lady-npc',
+      dialog: ['that message is concerning, I would look into that if I were you'],
+    },
     {
       type: 'door',
       x: 400,

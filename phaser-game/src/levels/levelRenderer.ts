@@ -3,7 +3,7 @@ import type { LevelData } from './types'
 import type { LevelKey } from './index'
 import type { PlayerState } from '../entities/PlayerState'
 import { DEPTH, SCALE } from '../config/constants'
-import type { PlayerState } from '../entities/PlayerState'
+import { progressionPoints } from './progressionPoints'
 
 export function renderLevel(
   scene: Phaser.Scene,
@@ -14,6 +14,7 @@ export function renderLevel(
   const colliders = scene.physics.add.staticGroup()
   const doors = scene.physics.add.staticGroup()
   const items = scene.physics.add.staticGroup()
+  const npcs = scene.physics.add.staticGroup()
 
   scene.cameras.main.setBackgroundColor(level.world.backgroundColor)
   scene.physics.world.setBounds(0, 0, level.world.width, level.world.height)
@@ -45,6 +46,10 @@ export function renderLevel(
   // --- interactables ---
   if (level.interactables) {
     for (const obj of level.interactables) {
+      if (!progressionPoints({ levelKey, interactable: obj, playerState })) {
+        continue
+      }
+
       if (obj.type === 'door') {
         const s = scene.physics.add.staticImage(obj.x, obj.y, '__collider__')
         s.setOrigin(0.5, 1)
@@ -73,9 +78,24 @@ export function renderLevel(
         it.setData('itemId', itemId)
 
         items.add(it)
+      } else if (obj.type === 'npc') {
+        const npc = scene.physics.add.staticImage(obj.x, obj.y, obj.spriteKey)
+        npc.setOrigin(0.5, 1)
+        npc.setDisplaySize(obj.width, obj.height)
+        npc.setDepth(DEPTH.BUILDING)
+        npc.refreshBody()
+
+        npc.setData('npcId', obj.id)
+        npc.setData('dialog', obj.dialog)
+        npc.setData('dialogIfHasItem', obj.dialogIfHasItem)
+        npc.setData('requiredItem', obj.requiredItem)
+        npc.setData('consumeRequiredItem', obj.consumeRequiredItem)
+        npc.setData('removeAfterTrade', obj.removeAfterTrade)
+
+        npcs.add(npc)
       }
     }
   }
 
-  return { colliders, doors, items }
+  return { colliders, doors, items, npcs }
 }

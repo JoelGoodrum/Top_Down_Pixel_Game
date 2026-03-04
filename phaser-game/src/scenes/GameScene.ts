@@ -10,8 +10,6 @@ import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
 import { DialogController } from '../systems/dialogController'
 
-let runPlayerState: PlayerState | undefined
-
 export default class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private player!: Player
@@ -21,6 +19,8 @@ export default class GameScene extends Phaser.Scene {
   private playerState!: PlayerState
   private hud!: Hud
   private levelKey!: LevelKey
+  private enterKey?: Phaser.Input.Keyboard.Key
+  private dialogController?: DialogController
 
   // Option A: passed in from doorTransitions via scene.start(..., { spawn })
   private spawn?: Spawn
@@ -38,11 +38,11 @@ export default class GameScene extends Phaser.Scene {
     this.enterKey = undefined
     this.dialogController?.destroy()
 
-    if (!runPlayerState) {
-      runPlayerState = new PlayerState()
-    }
-
     this.playerState = persistentPlayerState
+
+    if (this.levelKey === 'room115') {
+      this.playerState.markVisitedRoom115()
+    }
   }
 
   preload() {
@@ -62,6 +62,7 @@ export default class GameScene extends Phaser.Scene {
 
       // HUD first so bootstrap systems can use it
       this.hud = createHud(this, this.playerState)
+      this.dialogController = new DialogController(this)
 
       const { player } = bootstrapLevel({
         scene: this,
@@ -74,6 +75,7 @@ export default class GameScene extends Phaser.Scene {
         },
         playerState: this.playerState,
         hud: this.hud,
+        dialogController: this.dialogController,
         spawn: this.spawn,
       })
 
@@ -81,7 +83,6 @@ export default class GameScene extends Phaser.Scene {
       this.spawn = undefined // consume it
 
       this.enterKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-      this.dialogController = new DialogController(this)
       this.dialogController.startLevelDialog(this.level.levelStartingDialog)
     })
   }
