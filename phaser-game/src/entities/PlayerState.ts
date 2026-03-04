@@ -1,8 +1,10 @@
 export class PlayerState {
   private items: string[]
+  private collectedItemIds: Set<string>
 
   constructor() {
     this.items = []
+    this.collectedItemIds = new Set()
   }
 
   addItem(item: string): void {
@@ -19,11 +21,20 @@ export class PlayerState {
     return this.items.includes(item)
   }
 
+  hasCollected(itemId: string): boolean {
+    return this.collectedItemIds.has(itemId)
+  }
+
+  markCollected(itemId: string): void {
+    this.collectedItemIds.add(itemId)
+  }
+
   getItems(): string[] {
     return [...this.items] // return copy
   }
 
   clearItems(): void {
     this.items = []
+    this.collectedItemIds.clear()
   }
 }

@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { Player } from '../entities/Player'
 import { SCALE } from '../config/constants'
 import type { LevelData, Spawn } from '../levels/types'
+import type { LevelKey } from '../levels'
 import { renderLevel } from '../levels/levelRenderer'
 import { doorTransitions } from './doorTransitions'
 import { bindItemPickups } from './bindItemPickups'
@@ -11,15 +12,16 @@ import type { Hud } from '../ui/hud'
 export function bootstrapLevel(opts: {
   scene: Phaser.Scene
   level: LevelData
+  levelKey: LevelKey
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
   isTransitioning: { get: () => boolean; set: (v: boolean) => void }
   playerState: PlayerState
   hud: Hud
   spawn?: Spawn
 }) {
-  const { scene, level, cursors, isTransitioning, playerState, hud, spawn } = opts
+  const { scene, level, levelKey, cursors, isTransitioning, playerState, hud, spawn } = opts
 
-  const { colliders, doors, items } = renderLevel(scene, level)
+  const { colliders, doors, items } = renderLevel(scene, level, levelKey, playerState)
 
   const start = spawn ?? level.spawn.player
 

@@ -1,8 +1,15 @@
 import type Phaser from 'phaser'
 import type { LevelData } from './types'
+import type { LevelKey } from './index'
+import type { PlayerState } from '../entities/PlayerState'
 import { DEPTH, SCALE } from '../config/constants'
 
-export function renderLevel(scene: Phaser.Scene, level: LevelData) {
+export function renderLevel(
+  scene: Phaser.Scene,
+  level: LevelData,
+  levelKey: LevelKey,
+  playerState: PlayerState
+) {
   const colliders = scene.physics.add.staticGroup()
   const doors = scene.physics.add.staticGroup()
   const items = scene.physics.add.staticGroup()
@@ -50,15 +57,19 @@ export function renderLevel(scene: Phaser.Scene, level: LevelData) {
         s.setDepth(DEPTH.DOOR)
         doors.add(s)
       } else if (obj.type === 'item') {
-        // ✅ Make the item a physics object so we can overlap it
+        const itemId = `${levelKey}:${obj.name}:${obj.x}:${obj.y}`
+        if (playerState.hasCollected(itemId)) {
+          continue
+        }
+
         const it = scene.physics.add.staticImage(obj.x, obj.y, obj.name)
-        it.setOrigin(0.5, 1) // pick a consistent origin; bottom-center feels good
+        it.setOrigin(0.5, 1)
         it.setScale(SCALE.ITEMS)
-        it.setDepth(DEPTH.ITEMS ?? DEPTH.BUILDING) // if you have DEPTH.ITEMS use it
+        it.setDepth(DEPTH.BUILDING)
         it.refreshBody()
 
-        // ✅ store data so GameScene can read which item this was
         it.setData('itemName', obj.name)
+        it.setData('itemId', itemId)
 
         items.add(it)
       }
