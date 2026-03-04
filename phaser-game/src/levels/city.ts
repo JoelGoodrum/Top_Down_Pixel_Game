@@ -17,6 +17,12 @@ export const city: LevelData = {
     { key: 'park', path: '/assets/sprites/buildings/park.png' },
   ],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:city',
+    lines: ['My name is Lyla. It is very cold in here...', 'Hurry!'],
+    repeat: false,
+  },
+
   images: [
     {
       key: 'office',

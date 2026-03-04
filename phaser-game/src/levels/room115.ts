@@ -13,7 +13,11 @@ export const room115: LevelData = {
 
   levelStartingDialog: {
     id: 'dialogSeen:room115',
-    lines: ['I know Lyla, we play online games together'],
+    lines: [
+      'I know Lyla, we play online games together. But I have never actually seen her...',
+      'There might be something in her apartment that can help. She lives in apartment 101.',
+      'And the code is 7x11. That is because she likes 7-Eleven, get it?',
+    ],
     repeat: true,
   },
 

@@ -15,6 +15,16 @@ export const barInterior: LevelData = {
 
   images: [{ key: 'bar-interior', x: 400, y: 400, scale: 0.7, originX: 0.5, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:bar',
+    lines: [
+      'That is a very strange message you have.',
+      'Could that be the CEOs daughter?',
+      'No way...',
+    ],
+    repeat: true,
+  },
+
   interactables: [
     {
       type: 'door',

@@ -14,6 +14,12 @@ export const room101: LevelData = {
 
   images: [{ key: 'room101', x: 600, y: 400, scale: 0.5, originX: 0.75, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:room101',
+    lines: ['It is strange how he knows her apartment code but has never seen her...'],
+    repeat: false,
+  },
+
   interactables: [
     {
       type: 'door',

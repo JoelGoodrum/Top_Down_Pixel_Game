@@ -17,7 +17,11 @@ export const officeInterior: LevelData = {
 
   levelStartingDialog: {
     id: 'dialogSeen:startup',
-    lines: ['Help! I am stuck in here'],
+    lines: [
+      'You have recieved a text message.',
+      'Help! I am locked in here!',
+      'I am stuck at the top of the \nexecutive tower!',
+    ],
     repeat: false,
   },
 
