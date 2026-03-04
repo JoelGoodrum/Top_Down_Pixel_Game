@@ -20,8 +20,7 @@ export default class GameScene extends Phaser.Scene {
 
   private playerState!: PlayerState
   private hud!: Hud
-  private enterKey?: Phaser.Input.Keyboard.Key
-  private dialogController!: DialogController
+  private levelKey!: LevelKey
 
   // Option A: passed in from doorTransitions via scene.start(..., { spawn })
   private spawn?: Spawn
@@ -31,8 +30,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: { levelKey?: LevelKey; spawn?: Spawn } = {}) {
-    const levelKey = data.levelKey ?? 'officeInterior'
-    this.level = LEVELS[levelKey]
+    this.levelKey = data.levelKey ?? 'loftHall'
+    this.level = LEVELS[this.levelKey]
     this.spawn = data.spawn
 
     this.isTransitioning = false
@@ -43,7 +42,7 @@ export default class GameScene extends Phaser.Scene {
       runPlayerState = new PlayerState()
     }
 
-    this.playerState = runPlayerState
+    this.playerState = persistentPlayerState
   }
 
   preload() {
@@ -67,6 +66,7 @@ export default class GameScene extends Phaser.Scene {
       const { player } = bootstrapLevel({
         scene: this,
         level: this.level,
+        levelKey: this.levelKey,
         cursors: this.cursors,
         isTransitioning: {
           get: () => this.isTransitioning,
@@ -100,3 +100,5 @@ export default class GameScene extends Phaser.Scene {
     this.player?.update()
   }
 }
+
+const persistentPlayerState = new PlayerState()

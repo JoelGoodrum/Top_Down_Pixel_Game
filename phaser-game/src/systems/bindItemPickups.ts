@@ -15,8 +15,10 @@ export function bindItemPickups(opts: {
   scene.physics.add.overlap(player.gameObject, items, (_p, itemObj) => {
     const item = itemObj as Phaser.Physics.Arcade.Image
     const name = item.getData('itemName') as string | undefined
-    if (!name) return
+    const itemId = item.getData('itemId') as string | undefined
+    if (!name || !itemId || playerState.hasCollected(itemId)) return
 
+    playerState.markCollected(itemId)
     playerState.addItem(name)
     item.destroy()
     hud.render()
