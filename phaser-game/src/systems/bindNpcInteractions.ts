@@ -16,9 +16,26 @@ export function bindNpcInteractions(opts: {
   const { scene, player, npcs, doors, playerState, hud, dialogController } = opts
 
   let lastInteractionAt = 0
+  let interactionLockNpc: Phaser.Physics.Arcade.Image | undefined
+
+  scene.events.on('update', () => {
+    if (!interactionLockNpc || dialogController.isActive()) {
+      return
+    }
+
+    if (!scene.physics.overlap(player.gameObject, interactionLockNpc)) {
+      interactionLockNpc = undefined
+    }
+  })
 
   scene.physics.add.overlap(player.gameObject, npcs, (_p, npcObj) => {
     if (dialogController.isActive()) {
+      return
+    }
+
+    const npc = npcObj as Phaser.Physics.Arcade.Image
+
+    if (interactionLockNpc === npc) {
       return
     }
 
@@ -26,7 +43,6 @@ export function bindNpcInteractions(opts: {
       return
     }
 
-    const npc = npcObj as Phaser.Physics.Arcade.Image
     const npcId = npc.getData('npcId') as string | undefined
     const dialog = npc.getData('dialog') as readonly string[] | undefined
     const dialogIfHasItem = npc.getData('dialogIfHasItem') as readonly string[] | undefined
@@ -53,15 +69,24 @@ export function bindNpcInteractions(opts: {
         hud.render()
       }
 
-      if (removeAfterTrade) {
-        playerState.markSecurityGuardMoved()
-        npc.destroy()
-        ensureTowerDoorExists(scene, doors)
-      }
+      const onDialogComplete =
+        removeAfterTrade
+          ? () => {
+              playerState.markSecurityGuardMoved()
+              npc.destroy()
+              ensureTowerDoorExists(scene, doors)
+            }
+          : undefined
+
+      dialogController.startDialogLines(`dialogSeen:npc:${npcId}`, lines, true, onDialogComplete)
+      lastInteractionAt = scene.time.now
+      interactionLockNpc = npc
+      return
     }
 
     dialogController.startDialogLines(`dialogSeen:npc:${npcId}`, lines, true)
     lastInteractionAt = scene.time.now
+    interactionLockNpc = npc
   })
 }
 
