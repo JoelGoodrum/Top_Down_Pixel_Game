@@ -3,6 +3,7 @@ import type { LevelData } from './types'
 import type { LevelKey } from './index'
 import type { PlayerState } from '../entities/PlayerState'
 import { DEPTH, SCALE } from '../config/constants'
+import type { PlayerState } from '../entities/PlayerState'
 
 export function renderLevel(
   scene: Phaser.Scene,

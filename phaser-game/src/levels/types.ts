@@ -34,6 +34,12 @@ export type InteractableBase = {
   height: number
 }
 
+export type LevelStartingDialog = {
+  id: string
+  lines: readonly string[]
+  repeat?: boolean
+}
+
 export type Interactable =
   | (InteractableBase & {
       type: 'door'
@@ -57,8 +63,9 @@ export type LevelData = {
   }
   assets: readonly LevelAsset[]
   images: readonly LevelImage[]
-  spawn: {
+  spawn?: {
     player: { x: number; y: number }
   }
   interactables?: readonly Interactable[] // ✅ lowercase
+  levelStartingDialog?: LevelStartingDialog
 }

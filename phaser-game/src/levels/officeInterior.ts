@@ -15,6 +15,12 @@ export const officeInterior: LevelData = {
 
   images: [{ key: 'office-interior', x: 400, y: 400, scale: 0.7, originX: 0.5, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:startup',
+    lines: ['Help! I am stuck in here'],
+    repeat: false,
+  },
+
   interactables: [
     {
       type: 'door',

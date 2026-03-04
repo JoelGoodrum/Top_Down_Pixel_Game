@@ -8,6 +8,9 @@ import type { LevelData, Spawn } from '../levels/types'
 import { bootstrapLevel } from '../systems/bootstrapLevel'
 import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
+import { DialogController } from '../systems/dialogController'
+
+let runPlayerState: PlayerState | undefined
 
 export default class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -32,6 +35,12 @@ export default class GameScene extends Phaser.Scene {
     this.spawn = data.spawn
 
     this.isTransitioning = false
+    this.enterKey = undefined
+    this.dialogController?.destroy()
+
+    if (!runPlayerState) {
+      runPlayerState = new PlayerState()
+    }
 
     this.playerState = persistentPlayerState
   }
@@ -70,10 +79,24 @@ export default class GameScene extends Phaser.Scene {
 
       this.player = player
       this.spawn = undefined // consume it
+
+      this.enterKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
+      this.dialogController = new DialogController(this)
+      this.dialogController.startLevelDialog(this.level.levelStartingDialog)
     })
   }
 
   update() {
+    if (this.dialogController?.isActive()) {
+      this.player?.stop()
+
+      if (this.enterKey && Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+        this.dialogController.advanceDialog()
+      }
+
+      return
+    }
+
     this.player?.update()
   }
 }

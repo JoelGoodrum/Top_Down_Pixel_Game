@@ -64,6 +64,10 @@ export class Player {
     this.sprite.setDepth(DEPTH.PLAYER)
   }
 
+  stop() {
+    this.sprite.setVelocity(0, 0)
+  }
+
   get gameObject() {
     return this.sprite
   }

@@ -11,6 +11,12 @@ export const room115: LevelData = {
 
   images: [{ key: 'room115', x: 600, y: 400, scale: 0.5, originX: 0.75, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:room115',
+    lines: ['I know Lyla, we play online games together'],
+    repeat: true,
+  },
+
   interactables: [
     {
       type: 'door',
