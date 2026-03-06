@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { DEPTH } from '../config/constants'
+import { DEPTH, WALK_ANIMATION_FRAME_DURATION_MS } from '../config/constants'
 
 export type Direction = 'up' | 'down' | 'left' | 'right'
 
@@ -12,13 +12,12 @@ type PlayerConfig = {
 }
 
 const DEFAULT_SPEED = 180
-const WALK_FRAME_DURATION_MS = 120
 
 const WALK_FRAMES: Record<Direction, readonly string[]> = {
   up: ['player-up-left', 'player-up-right'],
   down: ['player-down-left', 'player-down-right'],
-  left: ['player-left-right', 'player-left', 'player-left-left', 'player-left'],
-  right: ['player-right-right', 'player-right', 'player-right-left', 'player-right'],
+  left: ['player-left-right', 'player-left'],
+  right: ['player-right-left', 'player-right'],
 } as const
 
 // Centralized collider config
@@ -149,8 +148,8 @@ export class Player {
     const deltaMs = this.sprite.scene.game.loop.delta
     this.walkFrameElapsedMs += deltaMs
 
-    if (this.walkFrameElapsedMs >= WALK_FRAME_DURATION_MS) {
-      this.walkFrameElapsedMs -= WALK_FRAME_DURATION_MS
+    if (this.walkFrameElapsedMs >= WALK_ANIMATION_FRAME_DURATION_MS) {
+      this.walkFrameElapsedMs -= WALK_ANIMATION_FRAME_DURATION_MS
       this.walkFrameIndex = (this.walkFrameIndex + 1) % WALK_FRAMES[this.lastDirection].length
     }
 
