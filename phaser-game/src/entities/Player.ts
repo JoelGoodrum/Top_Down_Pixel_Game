@@ -12,6 +12,14 @@ type PlayerConfig = {
 }
 
 const DEFAULT_SPEED = 180
+const WALK_FRAME_DURATION_MS = 120
+
+const WALK_FRAMES: Record<Direction, readonly string[]> = {
+  up: ['player-up-left', 'player-up-right'],
+  down: ['player-down-left', 'player-down-right'],
+  left: ['player-left-right', 'player-left', 'player-left-left', 'player-left'],
+  right: ['player-right-right', 'player-right', 'player-right-left', 'player-right'],
+} as const
 
 // Centralized collider config
 const PLAYER_COLLIDER = {
@@ -25,6 +33,11 @@ export class Player {
   private sprite: Phaser.Physics.Arcade.Sprite
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private lastDirection: Direction = 'down'
+  private pressedDirections: Direction[] = []
+  private isMoving = false
+  private walkFrameElapsedMs = 0
+  private walkFrameIndex = 0
+  private currentTextureKey = ''
   private speed: number
 
   constructor(
@@ -60,7 +73,9 @@ export class Player {
 
   update() {
     this.updateMovement()
-    this.updateFacingFromLastKeyPressed()
+    this.updatePressedDirections()
+    this.updateFacingFromPressedKeys()
+    this.updateTexture()
     this.sprite.setDepth(DEPTH.PLAYER)
   }
 
@@ -82,9 +97,12 @@ export class Player {
     if (this.cursors.down?.isDown) dy += 1
 
     if (dx === 0 && dy === 0) {
+      this.isMoving = false
       this.sprite.setVelocity(0, 0)
       return
     }
+
+    this.isMoving = true
 
     const len = Math.sqrt(dx * dx + dy * dy)
     dx /= len
@@ -93,16 +111,56 @@ export class Player {
     this.sprite.setVelocity(dx * this.speed, dy * this.speed)
   }
 
-  private updateFacingFromLastKeyPressed() {
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) this.setFacing('left')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) this.setFacing('right')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) this.setFacing('up')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) this.setFacing('down')
+  private updatePressedDirections() {
+    this.updateDirectionState('left', this.cursors.left)
+    this.updateDirectionState('right', this.cursors.right)
+    this.updateDirectionState('up', this.cursors.up)
+    this.updateDirectionState('down', this.cursors.down)
   }
 
-  private setFacing(dir: Direction) {
-    if (this.lastDirection === dir) return
-    this.lastDirection = dir
-    this.sprite.setTexture(`player-${dir}`)
+  private updateDirectionState(dir: Direction, key?: Phaser.Input.Keyboard.Key) {
+    if (!key) return
+
+    if (Phaser.Input.Keyboard.JustDown(key)) {
+      this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
+      this.pressedDirections.push(dir)
+      return
+    }
+
+    if (Phaser.Input.Keyboard.JustUp(key)) {
+      this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
+    }
+  }
+
+  private updateFacingFromPressedKeys() {
+    const newestDirectionStillDown = this.pressedDirections[this.pressedDirections.length - 1]
+    if (!newestDirectionStillDown) return
+    this.lastDirection = newestDirectionStillDown
+  }
+
+  private updateTexture() {
+    if (!this.isMoving) {
+      this.walkFrameElapsedMs = 0
+      this.walkFrameIndex = 0
+      this.setTextureIfChanged(`player-${this.lastDirection}`)
+      return
+    }
+
+    const deltaMs = this.sprite.scene.game.loop.delta
+    this.walkFrameElapsedMs += deltaMs
+
+    if (this.walkFrameElapsedMs >= WALK_FRAME_DURATION_MS) {
+      this.walkFrameElapsedMs -= WALK_FRAME_DURATION_MS
+      this.walkFrameIndex = (this.walkFrameIndex + 1) % WALK_FRAMES[this.lastDirection].length
+    }
+
+    const frameTexture = WALK_FRAMES[this.lastDirection][this.walkFrameIndex]
+    this.setTextureIfChanged(frameTexture)
+  }
+
+  private setTextureIfChanged(textureKey: string) {
+    if (this.currentTextureKey === textureKey) return
+    this.currentTextureKey = textureKey
+    this.sprite.setTexture(textureKey)
   }
 }
