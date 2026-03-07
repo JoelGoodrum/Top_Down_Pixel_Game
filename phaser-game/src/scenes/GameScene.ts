@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: { levelKey?: LevelKey; spawn?: Spawn } = {}) {
-    this.levelKey = data.levelKey ?? 'officeInterior'
+    this.levelKey = data.levelKey ?? 'quantumRoom'
     this.level = LEVELS[this.levelKey]
     this.spawn = data.spawn
 
@@ -138,7 +138,13 @@ export default class GameScene extends Phaser.Scene {
 
       this.time.delayedCall(500, () => {
         const blackScreen = this.add
-          .rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x000000)
+          .rectangle(
+            this.scale.width / 2,
+            this.scale.height / 2,
+            this.scale.width,
+            this.scale.height,
+            0x000000
+          )
           .setScrollFactor(0)
           .setDepth(1000)
 
