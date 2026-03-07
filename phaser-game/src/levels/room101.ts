@@ -3,7 +3,7 @@ import type { LevelData } from './types'
 export const room101: LevelData = {
   world: {
     width: 800,
-    height: 800,
+    height: 650,
     backgroundColor: 0x222222,
   },
 
@@ -14,12 +14,18 @@ export const room101: LevelData = {
 
   images: [{ key: 'room101', x: 600, y: 400, scale: 0.5, originX: 0.75, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:room101',
+    lines: ['It is strange how he knows her apartment code but has never seen her...'],
+    repeat: false,
+  },
+
   interactables: [
     {
       type: 'door',
       x: 400,
       y: 650,
-      width: 90,
+      width: 200,
       height: 60,
       targetLevel: 'loftHall', // exit back outside
       targetSpawn: { x: 280, y: 500, facing: 'down' },

@@ -20,6 +20,11 @@ export function bindItemPickups(opts: {
 
     playerState.markCollected(itemId)
     playerState.addItem(name)
+
+    if (name === 'clothes') {
+      player.setWearingLabcoat(true)
+    }
+
     item.destroy()
     hud.render()
   })

@@ -10,8 +10,6 @@ import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
 import { DialogController } from '../systems/dialogController'
 
-let runPlayerState: PlayerState | undefined
-
 export default class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private player!: Player
@@ -21,6 +19,10 @@ export default class GameScene extends Phaser.Scene {
   private playerState!: PlayerState
   private hud!: Hud
   private levelKey!: LevelKey
+  private enterKey?: Phaser.Input.Keyboard.Key
+  private dialogController?: DialogController
+  private endingStarted = false
+  private waitingForRestart = false
 
   // Option A: passed in from doorTransitions via scene.start(..., { spawn })
   private spawn?: Spawn
@@ -30,19 +32,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: { levelKey?: LevelKey; spawn?: Spawn } = {}) {
-    this.levelKey = data.levelKey ?? 'loftHall'
+    this.levelKey = data.levelKey ?? 'officeInterior'
     this.level = LEVELS[this.levelKey]
     this.spawn = data.spawn
 
     this.isTransitioning = false
     this.enterKey = undefined
     this.dialogController?.destroy()
-
-    if (!runPlayerState) {
-      runPlayerState = new PlayerState()
-    }
+    this.endingStarted = false
+    this.waitingForRestart = false
 
     this.playerState = persistentPlayerState
+
+    if (this.levelKey === 'room115') {
+      this.playerState.markVisitedRoom115()
+    }
   }
 
   preload() {
@@ -62,6 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
       // HUD first so bootstrap systems can use it
       this.hud = createHud(this, this.playerState)
+      this.dialogController = new DialogController(this)
 
       const { player } = bootstrapLevel({
         scene: this,
@@ -74,6 +79,8 @@ export default class GameScene extends Phaser.Scene {
         },
         playerState: this.playerState,
         hud: this.hud,
+        dialogController: this.dialogController,
+        onLeverTriggered: (lever) => this.playLeverEnding(lever),
         spawn: this.spawn,
       })
 
@@ -81,12 +88,20 @@ export default class GameScene extends Phaser.Scene {
       this.spawn = undefined // consume it
 
       this.enterKey = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-      this.dialogController = new DialogController(this)
       this.dialogController.startLevelDialog(this.level.levelStartingDialog)
     })
   }
 
   update() {
+    if (this.waitingForRestart) {
+      if (this.enterKey && Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+        persistentPlayerState = new PlayerState()
+        this.scene.restart({ levelKey: 'officeInterior' })
+      }
+
+      return
+    }
+
     if (this.dialogController?.isActive()) {
       this.player?.stop()
 
@@ -99,6 +114,75 @@ export default class GameScene extends Phaser.Scene {
 
     this.player?.update()
   }
+
+  private playLeverEnding(lever: Phaser.Physics.Arcade.Image) {
+    if (this.endingStarted) {
+      return
+    }
+
+    this.endingStarted = true
+    this.player.stop()
+
+    const leverPosition = { x: lever.x, y: lever.y }
+    const leverScale = { x: lever.scaleX, y: lever.scaleY }
+    const holdingLever = this.add
+      .image(leverPosition.x, leverPosition.y, 'holding-lever-right')
+      .setOrigin(0.5, 1)
+      .setScale(leverScale.x, leverScale.y)
+      .setDepth(lever.depth)
+
+    this.player.destroy()
+    lever.destroy()
+
+    this.time.delayedCall(500, () => {
+      holdingLever.setTexture('holding-lever-left')
+
+      this.time.delayedCall(500, () => {
+        this.dialogController?.startDialogLines(
+          'dialog:quantumRoom:endingThanks',
+          ['Thank you...'],
+          true,
+          () => {
+            const blackScreen = this.add
+              .rectangle(
+                this.scale.width / 2,
+                this.scale.height / 2,
+                this.scale.width,
+                this.scale.height,
+                0x000000
+              )
+              .setScrollFactor(0)
+              .setAlpha(0)
+              .setDepth(1000)
+
+            this.tweens.add({
+              targets: blackScreen,
+              alpha: 1,
+              duration: 1000,
+              onComplete: () => {
+                this.add
+                  .text(
+                    this.scale.width / 2,
+                    this.scale.height / 2,
+                    'Thank you for playing the game!\n(press enter to restart)',
+                    {
+                      color: '#ffffff',
+                      fontSize: '32px',
+                      align: 'center',
+                    }
+                  )
+                  .setOrigin(0.5)
+                  .setScrollFactor(0)
+                  .setDepth(blackScreen.depth + 1)
+
+                this.waitingForRestart = true
+              },
+            })
+          }
+        )
+      })
+    })
+  }
 }
 
-const persistentPlayerState = new PlayerState()
+let persistentPlayerState = new PlayerState()

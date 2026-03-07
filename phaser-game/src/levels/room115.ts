@@ -3,7 +3,7 @@ import type { LevelData } from './types'
 export const room115: LevelData = {
   world: {
     width: 800,
-    height: 800,
+    height: 650,
     backgroundColor: 0x222222,
   },
 
@@ -13,7 +13,11 @@ export const room115: LevelData = {
 
   levelStartingDialog: {
     id: 'dialogSeen:room115',
-    lines: ['I know Lyla, we play online games together'],
+    lines: [
+      'I know Lyla, we play online games together. But I have never actually seen her...',
+      'There might be something in her apartment that can help. She lives in apartment 101.',
+      'And the code is 7x11. That is because she likes 7-Eleven, get it?',
+    ],
     repeat: true,
   },
 
@@ -22,7 +26,7 @@ export const room115: LevelData = {
       type: 'door',
       x: 400,
       y: 650,
-      width: 90,
+      width: 100,
       height: 60,
       targetLevel: 'loftHall', // exit back outside
       targetSpawn: { x: 1020, y: 500, facing: 'down' },
