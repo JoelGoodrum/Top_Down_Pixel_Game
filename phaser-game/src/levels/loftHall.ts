@@ -16,10 +16,17 @@ export const loftHall: LevelData = {
 
   interactables: [
     {
+      type: 'collider',
+      x: 650,
+      y: 410,
+      width: 860,
+      height: 26,
+    },
+    {
       type: 'door',
       x: 140,
       y: 380,
-      width: 50,
+      width: 42,
       height: 60,
       targetLevel: 'city', // exit back outside
       targetSpawn: { x: 1800, y: 800, facing: 'down' },
@@ -28,7 +35,7 @@ export const loftHall: LevelData = {
       type: 'door',
       x: 280,
       y: 430,
-      width: 50,
+      width: 42,
       height: 60,
       targetLevel: 'room101', // exit back outside
       targetSpawn: { x: 400, y: 580, facing: 'up' },
@@ -37,7 +44,7 @@ export const loftHall: LevelData = {
       type: 'door',
       x: 1020,
       y: 430,
-      width: 50,
+      width: 42,
       height: 60,
       targetLevel: 'room115', // exit back outside
       targetSpawn: { x: 400, y: 580, facing: 'up' },

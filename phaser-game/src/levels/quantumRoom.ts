@@ -3,23 +3,35 @@ import type { LevelData } from './types'
 export const quantumRoom: LevelData = {
   world: {
     width: 800,
-    height: 800,
+    height: 700,
     backgroundColor: 0x222222,
   },
 
-  assets: [{ key: 'quantum-room', path: '/assets/sprites/interiors/quantum-room.png' }],
+  assets: [
+    { key: 'quantum-room', path: '/assets/sprites/interiors/quantum-room.png' },
+    { key: 'lever', path: '/assets/sprites/interactables/lever.png' },
+    { key: 'holding-lever-right', path: '/assets/sprites/interactables/holding-lever-right.png' },
+    { key: 'holding-lever-left', path: '/assets/sprites/interactables/holding-lever-left.png' },
+  ],
 
   images: [{ key: 'quantum-room', x: 600, y: 400, scale: 0.6, originX: 0.8, originY: 0.5 }],
 
+  levelStartingDialog: {
+    id: 'dialogSeen:quantumRoom',
+    lines: ['I am Lyla!', 'Please pull the lever to release me!!!'],
+    repeat: false,
+  },
+
   interactables: [
     {
-      type: 'door',
-      x: 400,
-      y: 800,
-      width: 90,
-      height: 60,
-      targetLevel: 'lab', // exit back outside
-      targetSpawn: { x: 400, y: 400, facing: 'down' },
+      type: 'interactable',
+      name: 'lever',
+      spriteKey: 'lever',
+      x: 540,
+      y: 450,
+      width: 48,
+      height: 64,
+      scale: 0.14,
     },
   ],
 }

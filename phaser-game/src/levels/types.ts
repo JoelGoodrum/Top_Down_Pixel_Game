@@ -48,11 +48,26 @@ export type Interactable =
     })
   | (InteractableBase & {
       type: 'npc'
-      dialog: string
+      id: string
+      spriteKey: string
+      dialog: readonly string[]
+      dialogIfHasItem?: readonly string[]
+      requiredItem?: string
+      consumeRequiredItem?: boolean
+      removeAfterTrade?: boolean
     })
   | (InteractableBase & {
       type: 'item'
       name: string
+    })
+  | (InteractableBase & {
+      type: 'interactable'
+      name: 'lever'
+      spriteKey: string
+      scale?: number
+    })
+  | (InteractableBase & {
+      type: 'collider'
     })
 
 export type LevelData = {

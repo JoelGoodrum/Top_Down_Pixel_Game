@@ -11,3 +11,5 @@ export const DEPTH = {
   DOOR: -3,
   ITEMS: -2,
 } as const
+
+export const WALK_ANIMATION_FRAME_DURATION_MS = 120

@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { DEPTH } from '../config/constants'
+import { DEPTH, WALK_ANIMATION_FRAME_DURATION_MS } from '../config/constants'
 
 export type Direction = 'up' | 'down' | 'left' | 'right'
 
@@ -9,9 +9,31 @@ type PlayerConfig = {
   scale: number
   speed?: number
   facing?: Direction
+  wearingLabcoat?: boolean
 }
 
 const DEFAULT_SPEED = 180
+const BASE_PLAYER_ORIGIN_X = 0.5
+const PLAYER_ORIGIN_Y = 1
+
+// Manual tuning value for left/right-facing sprites to reduce visible head displacement.
+// Increase/decrease this value to shift only side-facing frames horizontally.
+const SIDE_FACING_ORIGIN_X_OFFSET = 0
+
+const WALK_FRAMES_BY_OUTFIT: Record<'player' | 'labcoat', Record<Direction, readonly string[]>> = {
+  player: {
+    up: ['player-up-left', 'player-up-right'],
+    down: ['player-down-left', 'player-down-right'],
+    left: ['player-left-right', 'player-left'],
+    right: ['player-right-left', 'player-right'],
+  },
+  labcoat: {
+    up: ['labcoat-up-left', 'labcoat-up-right'],
+    down: ['labcoat-down-left', 'labcoat-down-right'],
+    left: ['labcoat-left-left', 'labcoat-left'],
+    right: ['labcoat-right-right', 'labcoat-right'],
+  },
+} as const
 
 // Centralized collider config
 const PLAYER_COLLIDER = {
@@ -25,7 +47,14 @@ export class Player {
   private sprite: Phaser.Physics.Arcade.Sprite
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys
   private lastDirection: Direction = 'down'
+  private pressedDirections: Direction[] = []
+  private isMoving = false
+  private walkFrameElapsedMs = 0
+  private walkFrameIndex = 0
+  private currentTextureKey = ''
   private speed: number
+  private outfit: 'player' | 'labcoat'
+  private isDestroyed = false
 
   constructor(
     scene: Phaser.Scene,
@@ -34,13 +63,18 @@ export class Player {
   ) {
     this.cursors = cursors
     this.speed = config.speed ?? DEFAULT_SPEED
+    this.outfit = config.wearingLabcoat ? 'labcoat' : 'player'
 
     const initialFacing: Direction = config.facing ?? 'down'
     this.lastDirection = initialFacing
 
-    this.sprite = scene.physics.add.sprite(config.startX, config.startY, `player-${initialFacing}`)
+    this.sprite = scene.physics.add.sprite(
+      config.startX,
+      config.startY,
+      this.textureKeyForDirection(initialFacing)
+    )
 
-    this.sprite.setOrigin(0.5, 1)
+    this.sprite.setOrigin(BASE_PLAYER_ORIGIN_X, PLAYER_ORIGIN_Y)
     this.sprite.setScale(config.scale)
     this.sprite.setDepth(DEPTH.PLAYER)
 
@@ -59,17 +93,51 @@ export class Player {
   }
 
   update() {
+    if (this.isDestroyed) {
+      return
+    }
+
     this.updateMovement()
-    this.updateFacingFromLastKeyPressed()
+    this.updatePressedDirections()
+    this.updateFacingFromPressedKeys()
+    this.updateTexture()
     this.sprite.setDepth(DEPTH.PLAYER)
   }
 
   stop() {
+    if (this.isDestroyed) {
+      return
+    }
+
     this.sprite.setVelocity(0, 0)
   }
 
   get gameObject() {
     return this.sprite
+  }
+
+  setWearingLabcoat(wearingLabcoat: boolean) {
+    if (this.isDestroyed) {
+      return
+    }
+
+    const nextOutfit = wearingLabcoat ? 'labcoat' : 'player'
+    if (this.outfit === nextOutfit) return
+
+    this.outfit = nextOutfit
+    this.walkFrameElapsedMs = 0
+    this.walkFrameIndex = 0
+    this.currentTextureKey = ''
+    this.updateTexture()
+  }
+
+  destroy() {
+    if (this.isDestroyed) {
+      return
+    }
+
+    this.isDestroyed = true
+    this.sprite.destroy()
   }
 
   private updateMovement() {
@@ -82,9 +150,12 @@ export class Player {
     if (this.cursors.down?.isDown) dy += 1
 
     if (dx === 0 && dy === 0) {
+      this.isMoving = false
       this.sprite.setVelocity(0, 0)
       return
     }
+
+    this.isMoving = true
 
     const len = Math.sqrt(dx * dx + dy * dy)
     dx /= len
@@ -93,16 +164,71 @@ export class Player {
     this.sprite.setVelocity(dx * this.speed, dy * this.speed)
   }
 
-  private updateFacingFromLastKeyPressed() {
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) this.setFacing('left')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) this.setFacing('right')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.up)) this.setFacing('up')
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.down)) this.setFacing('down')
+  private updatePressedDirections() {
+    this.updateDirectionState('left', this.cursors.left)
+    this.updateDirectionState('right', this.cursors.right)
+    this.updateDirectionState('up', this.cursors.up)
+    this.updateDirectionState('down', this.cursors.down)
   }
 
-  private setFacing(dir: Direction) {
-    if (this.lastDirection === dir) return
-    this.lastDirection = dir
-    this.sprite.setTexture(`player-${dir}`)
+  private updateDirectionState(dir: Direction, key?: Phaser.Input.Keyboard.Key) {
+    if (!key) return
+
+    if (Phaser.Input.Keyboard.JustDown(key)) {
+      this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
+      this.pressedDirections.push(dir)
+      return
+    }
+
+    if (Phaser.Input.Keyboard.JustUp(key)) {
+      this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
+    }
+  }
+
+  private updateFacingFromPressedKeys() {
+    const newestDirectionStillDown = this.pressedDirections[this.pressedDirections.length - 1]
+    if (!newestDirectionStillDown) return
+    this.lastDirection = newestDirectionStillDown
+  }
+
+  private updateTexture() {
+    if (!this.isMoving) {
+      this.walkFrameElapsedMs = 0
+      this.walkFrameIndex = 0
+      this.setTextureIfChanged(this.textureKeyForDirection(this.lastDirection))
+      return
+    }
+
+    const deltaMs = this.sprite.scene.game.loop.delta
+    this.walkFrameElapsedMs += deltaMs
+
+    if (this.walkFrameElapsedMs >= WALK_ANIMATION_FRAME_DURATION_MS) {
+      this.walkFrameElapsedMs -= WALK_ANIMATION_FRAME_DURATION_MS
+      this.walkFrameIndex =
+        (this.walkFrameIndex + 1) % WALK_FRAMES_BY_OUTFIT[this.outfit][this.lastDirection].length
+    }
+
+    const frameTexture = WALK_FRAMES_BY_OUTFIT[this.outfit][this.lastDirection][this.walkFrameIndex]
+    this.setTextureIfChanged(frameTexture)
+  }
+
+  private textureKeyForDirection(direction: Direction): string {
+    return `${this.outfit}-${direction}`
+  }
+
+  private setTextureIfChanged(textureKey: string) {
+    if (this.currentTextureKey === textureKey) return
+    this.currentTextureKey = textureKey
+    this.sprite.setTexture(textureKey)
+    this.applyDirectionalOriginXOffset()
+  }
+
+  private applyDirectionalOriginXOffset() {
+    const sideFacing = this.lastDirection === 'left' || this.lastDirection === 'right'
+    const originX = sideFacing
+      ? BASE_PLAYER_ORIGIN_X + SIDE_FACING_ORIGIN_X_OFFSET
+      : BASE_PLAYER_ORIGIN_X
+
+    this.sprite.setOrigin(originX, PLAYER_ORIGIN_Y)
   }
 }
