@@ -124,11 +124,12 @@ export default class GameScene extends Phaser.Scene {
     this.player.stop()
 
     const playerSprite = this.player.gameObject
+    const leverPosition = { x: lever.x, y: lever.y }
     const holdingLever = this.add
-      .image(playerSprite.x, playerSprite.y, 'holding-lever-right')
+      .image(leverPosition.x, leverPosition.y, 'holding-lever-right')
       .setOrigin(0.5, 1)
       .setScale(playerSprite.scale)
-      .setDepth(playerSprite.depth)
+      .setDepth(lever.depth)
 
     this.player.destroy()
     lever.destroy()
@@ -137,7 +138,8 @@ export default class GameScene extends Phaser.Scene {
       holdingLever.setTexture('holding-lever-left')
 
       this.time.delayedCall(500, () => {
-        const blackScreen = this.add
+        this.dialogController?.startDialogLines('dialog:quantumRoom:endingThanks', ['Thank you...'], true, () => {
+          const blackScreen = this.add
           .rectangle(
             this.scale.width / 2,
             this.scale.height / 2,
@@ -146,25 +148,32 @@ export default class GameScene extends Phaser.Scene {
             0x000000
           )
           .setScrollFactor(0)
+          .setAlpha(0)
           .setDepth(1000)
 
-        this.time.delayedCall(500, () => {
-          this.add
-            .text(
-              this.scale.width / 2,
-              this.scale.height / 2,
-              'Thank you for playing the game!\n(press enter to restart)',
-              {
-                color: '#ffffff',
-                fontSize: '32px',
-                align: 'center',
-              }
-            )
-            .setOrigin(0.5)
-            .setScrollFactor(0)
-            .setDepth(blackScreen.depth + 1)
+          this.tweens.add({
+            targets: blackScreen,
+            alpha: 1,
+            duration: 1000,
+            onComplete: () => {
+              this.add
+                .text(
+                  this.scale.width / 2,
+                  this.scale.height / 2,
+                  'Thank you for playing the game!\n(press enter to restart)',
+                  {
+                    color: '#ffffff',
+                    fontSize: '32px',
+                    align: 'center',
+                  }
+                )
+                .setOrigin(0.5)
+                .setScrollFactor(0)
+                .setDepth(blackScreen.depth + 1)
 
-          this.waitingForRestart = true
+              this.waitingForRestart = true
+            },
+          })
         })
       })
     })
