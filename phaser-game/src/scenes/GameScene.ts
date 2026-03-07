@@ -123,12 +123,12 @@ export default class GameScene extends Phaser.Scene {
     this.endingStarted = true
     this.player.stop()
 
-    const playerSprite = this.player.gameObject
     const leverPosition = { x: lever.x, y: lever.y }
+    const leverScale = { x: lever.scaleX, y: lever.scaleY }
     const holdingLever = this.add
       .image(leverPosition.x, leverPosition.y, 'holding-lever-right')
       .setOrigin(0.5, 1)
-      .setScale(playerSprite.scale)
+      .setScale(leverScale.x, leverScale.y)
       .setDepth(lever.depth)
 
     this.player.destroy()

@@ -9,6 +9,7 @@ export class DialogController {
   private dialogLines: readonly string[] = []
   private dialogBox?: Phaser.GameObjects.Rectangle
   private dialogText?: Phaser.GameObjects.Text
+  private dialogHintText?: Phaser.GameObjects.Text
   private onDialogComplete?: () => void
 
   constructor(scene: Phaser.Scene) {
@@ -75,14 +76,25 @@ export class DialogController {
       })
       .setScrollFactor(0)
       .setDepth(1201)
+
+    this.dialogHintText = this.scene.add
+      .text(cam.width / 2, cam.height - 16, '(press enter)', {
+        fontSize: '16px',
+        color: '#ffffff',
+      })
+      .setOrigin(0.5, 1)
+      .setScrollFactor(0)
+      .setDepth(1201)
   }
 
   private destroyDialog() {
     const onComplete = this.onDialogComplete
 
     this.dialogText?.destroy()
+    this.dialogHintText?.destroy()
     this.dialogBox?.destroy()
     this.dialogText = undefined
+    this.dialogHintText = undefined
     this.dialogBox = undefined
     this.dialogLines = []
     this.dialogIndex = 0
