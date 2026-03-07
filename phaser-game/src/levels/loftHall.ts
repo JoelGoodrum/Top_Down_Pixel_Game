@@ -16,6 +16,13 @@ export const loftHall: LevelData = {
 
   interactables: [
     {
+      type: 'collider',
+      x: 650,
+      y: 398,
+      width: 860,
+      height: 26,
+    },
+    {
       type: 'door',
       x: 140,
       y: 380,

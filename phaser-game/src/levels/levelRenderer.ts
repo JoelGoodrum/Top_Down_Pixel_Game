@@ -108,6 +108,15 @@ export function renderLevel(
         interactable.setData('interactableName', obj.name)
 
         interactables.add(interactable)
+      } else if (obj.type === 'collider') {
+        const s = scene.physics.add.staticImage(obj.x, obj.y, '__collider__')
+        s.setOrigin(0.5, 1)
+        s.setDisplaySize(obj.width, obj.height)
+        s.refreshBody()
+        s.setAlpha(0)
+        s.setDepth(DEPTH.BUILDING + 1)
+
+        colliders.add(s)
       }
     }
   }

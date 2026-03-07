@@ -66,6 +66,9 @@ export type Interactable =
       spriteKey: string
       scale?: number
     })
+  | (InteractableBase & {
+      type: 'collider'
+    })
 
 export type LevelData = {
   world: {
