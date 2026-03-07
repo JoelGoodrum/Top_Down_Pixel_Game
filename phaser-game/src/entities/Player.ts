@@ -54,6 +54,7 @@ export class Player {
   private currentTextureKey = ''
   private speed: number
   private outfit: 'player' | 'labcoat'
+  private isDestroyed = false
 
   constructor(
     scene: Phaser.Scene,
@@ -92,6 +93,10 @@ export class Player {
   }
 
   update() {
+    if (this.isDestroyed) {
+      return
+    }
+
     this.updateMovement()
     this.updatePressedDirections()
     this.updateFacingFromPressedKeys()
@@ -100,6 +105,10 @@ export class Player {
   }
 
   stop() {
+    if (this.isDestroyed) {
+      return
+    }
+
     this.sprite.setVelocity(0, 0)
   }
 
@@ -108,6 +117,10 @@ export class Player {
   }
 
   setWearingLabcoat(wearingLabcoat: boolean) {
+    if (this.isDestroyed) {
+      return
+    }
+
     const nextOutfit = wearingLabcoat ? 'labcoat' : 'player'
     if (this.outfit === nextOutfit) return
 
@@ -116,6 +129,15 @@ export class Player {
     this.walkFrameIndex = 0
     this.currentTextureKey = ''
     this.updateTexture()
+  }
+
+  destroy() {
+    if (this.isDestroyed) {
+      return
+    }
+
+    this.isDestroyed = true
+    this.sprite.destroy()
   }
 
   private updateMovement() {

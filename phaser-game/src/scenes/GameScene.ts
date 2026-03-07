@@ -21,6 +21,8 @@ export default class GameScene extends Phaser.Scene {
   private levelKey!: LevelKey
   private enterKey?: Phaser.Input.Keyboard.Key
   private dialogController?: DialogController
+  private endingStarted = false
+  private waitingForRestart = false
 
   // Option A: passed in from doorTransitions via scene.start(..., { spawn })
   private spawn?: Spawn
@@ -37,6 +39,8 @@ export default class GameScene extends Phaser.Scene {
     this.isTransitioning = false
     this.enterKey = undefined
     this.dialogController?.destroy()
+    this.endingStarted = false
+    this.waitingForRestart = false
 
     this.playerState = persistentPlayerState
 
@@ -76,6 +80,7 @@ export default class GameScene extends Phaser.Scene {
         playerState: this.playerState,
         hud: this.hud,
         dialogController: this.dialogController,
+        onLeverTriggered: (lever) => this.playLeverEnding(lever),
         spawn: this.spawn,
       })
 
@@ -88,6 +93,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update() {
+    if (this.waitingForRestart) {
+      if (this.enterKey && Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+        persistentPlayerState = new PlayerState()
+        this.scene.restart({ levelKey: 'officeInterior' })
+      }
+
+      return
+    }
+
     if (this.dialogController?.isActive()) {
       this.player?.stop()
 
@@ -100,6 +114,55 @@ export default class GameScene extends Phaser.Scene {
 
     this.player?.update()
   }
+
+  private playLeverEnding(lever: Phaser.Physics.Arcade.Image) {
+    if (this.endingStarted) {
+      return
+    }
+
+    this.endingStarted = true
+    this.player.stop()
+
+    const playerSprite = this.player.gameObject
+    const holdingLever = this.add
+      .image(playerSprite.x, playerSprite.y, 'holding-lever-right')
+      .setOrigin(0.5, 1)
+      .setScale(playerSprite.scale)
+      .setDepth(playerSprite.depth)
+
+    this.player.destroy()
+    lever.destroy()
+
+    this.time.delayedCall(500, () => {
+      holdingLever.setTexture('holding-lever-left')
+
+      this.time.delayedCall(500, () => {
+        const blackScreen = this.add
+          .rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x000000)
+          .setScrollFactor(0)
+          .setDepth(1000)
+
+        this.time.delayedCall(500, () => {
+          this.add
+            .text(
+              this.scale.width / 2,
+              this.scale.height / 2,
+              'Thank you for playing the game!\n(press enter to restart)',
+              {
+                color: '#ffffff',
+                fontSize: '32px',
+                align: 'center',
+              }
+            )
+            .setOrigin(0.5)
+            .setScrollFactor(0)
+            .setDepth(blackScreen.depth + 1)
+
+          this.waitingForRestart = true
+        })
+      })
+    })
+  }
 }
 
-const persistentPlayerState = new PlayerState()
+let persistentPlayerState = new PlayerState()

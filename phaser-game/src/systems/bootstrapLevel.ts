@@ -7,6 +7,7 @@ import { renderLevel } from '../levels/levelRenderer'
 import { doorTransitions } from './doorTransitions'
 import { bindItemPickups } from './bindItemPickups'
 import { bindNpcInteractions } from './bindNpcInteractions'
+import { bindInteractableInteractions } from './bindInteractableInteractions'
 import type { PlayerState } from '../entities/PlayerState'
 import type { Hud } from '../ui/hud'
 import type { DialogController } from './dialogController'
@@ -20,6 +21,7 @@ export function bootstrapLevel(opts: {
   playerState: PlayerState
   hud: Hud
   dialogController: DialogController
+  onLeverTriggered: (lever: Phaser.Physics.Arcade.Image) => void
   spawn?: Spawn
 }) {
   const {
@@ -31,10 +33,16 @@ export function bootstrapLevel(opts: {
     playerState,
     hud,
     dialogController,
+    onLeverTriggered,
     spawn,
   } = opts
 
-  const { colliders, doors, items, npcs } = renderLevel(scene, level, levelKey, playerState)
+  const { colliders, doors, items, npcs, interactables } = renderLevel(
+    scene,
+    level,
+    levelKey,
+    playerState
+  )
 
   const start = spawn ??
     level.spawn?.player ?? { x: level.world.width / 2, y: level.world.height / 2 }
@@ -66,6 +74,10 @@ export function bootstrapLevel(opts: {
 
   if (npcs) {
     bindNpcInteractions({ scene, player, npcs, doors, playerState, hud, dialogController })
+  }
+
+  if (interactables) {
+    bindInteractableInteractions({ scene, player, interactables, onLeverTriggered })
   }
 
   scene.cameras.main.startFollow(player.gameObject)

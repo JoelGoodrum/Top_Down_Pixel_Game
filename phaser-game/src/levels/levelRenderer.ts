@@ -15,6 +15,7 @@ export function renderLevel(
   const doors = scene.physics.add.staticGroup()
   const items = scene.physics.add.staticGroup()
   const npcs = scene.physics.add.staticGroup()
+  const interactables = scene.physics.add.staticGroup()
 
   scene.cameras.main.setBackgroundColor(level.world.backgroundColor)
   scene.physics.world.setBounds(0, 0, level.world.width, level.world.height)
@@ -93,9 +94,23 @@ export function renderLevel(
         npc.setData('removeAfterTrade', obj.removeAfterTrade)
 
         npcs.add(npc)
+      } else if (obj.type === 'interactable') {
+        const interactable = scene.physics.add.staticImage(obj.x, obj.y, obj.spriteKey)
+        interactable.setOrigin(0.5, 1)
+        if (obj.scale !== undefined) {
+          interactable.setScale(obj.scale)
+        } else {
+          interactable.setDisplaySize(obj.width, obj.height)
+        }
+        interactable.setDepth(DEPTH.BUILDING)
+        interactable.refreshBody()
+
+        interactable.setData('interactableName', obj.name)
+
+        interactables.add(interactable)
       }
     }
   }
 
-  return { colliders, doors, items, npcs }
+  return { colliders, doors, items, npcs, interactables }
 }

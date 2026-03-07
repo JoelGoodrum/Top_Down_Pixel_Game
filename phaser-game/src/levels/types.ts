@@ -60,6 +60,12 @@ export type Interactable =
       type: 'item'
       name: string
     })
+  | (InteractableBase & {
+      type: 'interactable'
+      name: 'lever'
+      spriteKey: string
+      scale?: number
+    })
 
 export type LevelData = {
   world: {
