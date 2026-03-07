@@ -19,7 +19,7 @@ export const closet: LevelData = {
       type: 'door',
       x: 400,
       y: 720,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'towerHall', // exit back outside
       targetSpawn: { x: 700, y: 500, facing: 'down' },

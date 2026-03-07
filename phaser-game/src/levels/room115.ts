@@ -26,7 +26,7 @@ export const room115: LevelData = {
       type: 'door',
       x: 400,
       y: 650,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'loftHall', // exit back outside
       targetSpawn: { x: 1020, y: 500, facing: 'down' },

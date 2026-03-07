@@ -12,6 +12,12 @@ type PlayerConfig = {
 }
 
 const DEFAULT_SPEED = 180
+const BASE_PLAYER_ORIGIN_X = 0.5
+const PLAYER_ORIGIN_Y = 1
+
+// Manual tuning value for left/right-facing sprites to reduce visible head displacement.
+// Increase/decrease this value to shift only side-facing frames horizontally.
+const SIDE_FACING_ORIGIN_X_OFFSET = 0
 
 const WALK_FRAMES: Record<Direction, readonly string[]> = {
   up: ['player-up-left', 'player-up-right'],
@@ -52,7 +58,7 @@ export class Player {
 
     this.sprite = scene.physics.add.sprite(config.startX, config.startY, `player-${initialFacing}`)
 
-    this.sprite.setOrigin(0.5, 1)
+    this.sprite.setOrigin(BASE_PLAYER_ORIGIN_X, PLAYER_ORIGIN_Y)
     this.sprite.setScale(config.scale)
     this.sprite.setDepth(DEPTH.PLAYER)
 
@@ -161,5 +167,15 @@ export class Player {
     if (this.currentTextureKey === textureKey) return
     this.currentTextureKey = textureKey
     this.sprite.setTexture(textureKey)
+    this.applyDirectionalOriginXOffset()
+  }
+
+  private applyDirectionalOriginXOffset() {
+    const sideFacing = this.lastDirection === 'left' || this.lastDirection === 'right'
+    const originX = sideFacing
+      ? BASE_PLAYER_ORIGIN_X + SIDE_FACING_ORIGIN_X_OFFSET
+      : BASE_PLAYER_ORIGIN_X
+
+    this.sprite.setOrigin(originX, PLAYER_ORIGIN_Y)
   }
 }

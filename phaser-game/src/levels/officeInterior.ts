@@ -43,7 +43,7 @@ export const officeInterior: LevelData = {
       type: 'door',
       x: 400,
       y: 800,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'city', // exit back outside
       targetSpawn: { x: 400, y: 750, facing: 'down' },

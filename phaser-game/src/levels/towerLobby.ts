@@ -16,7 +16,7 @@ export const towerLobby: LevelData = {
       type: 'door',
       x: 400,
       y: 610,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'city', // exit back outside
       targetSpawn: { x: 1100, y: 800, facing: 'down' },
@@ -25,7 +25,7 @@ export const towerLobby: LevelData = {
       type: 'door',
       x: 400,
       y: 300,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'towerHall', // exit back outside
       targetSpawn: { x: 400, y: 450, facing: 'down' },

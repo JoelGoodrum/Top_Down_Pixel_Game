@@ -16,16 +16,16 @@ export const towerHall: LevelData = {
       type: 'door',
       x: 100,
       y: 400,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'lab', // exit back outside
       targetSpawn: { x: 400, y: 650, facing: 'up' },
     },
     {
       type: 'door',
-      x: 390,
+      x: 400,
       y: 400,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'towerLobby', // exit back outside
       targetSpawn: { x: 400, y: 400, facing: 'down' },
@@ -34,7 +34,7 @@ export const towerHall: LevelData = {
       type: 'door',
       x: 700,
       y: 400,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'closet', // exit back outside
       targetSpawn: { x: 400, y: 600, facing: 'up' },

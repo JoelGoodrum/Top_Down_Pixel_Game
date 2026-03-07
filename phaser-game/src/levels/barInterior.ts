@@ -30,7 +30,7 @@ export const barInterior: LevelData = {
       type: 'door',
       x: 400,
       y: 650,
-      width: 90,
+      width: 64,
       height: 60,
       targetLevel: 'city', // exit back outside
       targetSpawn: { x: 330, y: 1250, facing: 'down' },

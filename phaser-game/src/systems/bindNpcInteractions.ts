@@ -99,9 +99,9 @@ function ensureTowerDoorExists(scene: Phaser.Scene, doors: Phaser.Physics.Arcade
     return
   }
 
-  const towerDoor = scene.physics.add.staticImage(1150, 700, '__collider__')
+  const towerDoor = scene.physics.add.staticImage(1100, 700, '__collider__')
   towerDoor.setOrigin(0.5, 1)
-  towerDoor.setDisplaySize(100, 50)
+  towerDoor.setDisplaySize(72, 50)
   towerDoor.refreshBody()
   towerDoor.setAlpha(0)
   towerDoor.setData('targetLevel', 'towerLobby')
