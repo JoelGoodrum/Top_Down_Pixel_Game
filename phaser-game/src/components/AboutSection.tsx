@@ -1,15 +1,8 @@
-import React, { useEffect, useState } from '../react'
-
-const API_BASE = 'https://api-the-person-above.game-stats.workers.dev'
-
-type Stats = {
-  websiteVisits: string
-  totalCompletions: string
-  averageCompletionTime: string
-}
+import { React, useEffect, useState } from '../react'
+import { type GameStats, fetchGameStats } from '../api/gameStats'
 
 export const AboutSection = () => {
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<GameStats>({
     websiteVisits: '0',
     totalCompletions: '0',
     averageCompletionTime: '0 minutes',
@@ -17,21 +10,8 @@ export const AboutSection = () => {
 
   useEffect(() => {
     async function loadStats() {
-      try {
-        const res = await fetch(`${API_BASE}/stats`)
-        const data = await res.json()
-
-        const avgSeconds = data.average_completion_seconds ?? 0
-        const avgMinutes = Math.round(avgSeconds / 60)
-
-        setStats({
-          websiteVisits: String(data.total_visits ?? 0),
-          totalCompletions: String(data.total_beats ?? 0),
-          averageCompletionTime: `${avgMinutes} minutes`,
-        })
-      } catch (err) {
-        console.error('Failed to load stats', err)
-      }
+      const data = await fetchGameStats()
+      setStats(data)
     }
 
     loadStats()

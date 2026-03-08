@@ -1,5 +1,6 @@
 import type Phaser from 'phaser'
 import type { DialogController } from '../systems/dialogController'
+import { recordGameCompletion } from '../api/gameStats'
 
 type PlayLeverEndingOptions = {
   scene: Phaser.Scene
@@ -58,7 +59,10 @@ export const playLeverEndingSequence = ({
             duration: 1000,
             onComplete: () => {
               const completionDurationMs = Math.max(0, scene.time.now - gameStartTime)
+              const completionDurationSeconds = Math.floor(completionDurationMs / 1000)
               const completionTimeText = formatCompletionTime(completionDurationMs)
+
+              void recordGameCompletion(completionDurationSeconds)
 
               scene.add
                 .text(

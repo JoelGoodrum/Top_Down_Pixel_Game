@@ -6,11 +6,16 @@ import { GameSection } from './components/GameSection'
 import { Navigation } from './components/Navigation'
 import { resetPersistentPlayerState } from './scenes/GameScene'
 import { isMobileDevice } from './game/mobileControls'
+import { ensureVisitSession } from './api/gameStats'
 
 type Tab = 'game' | 'about'
 
 const App = () => {
   const [activeTab, setActiveTab] = useState<Tab>('game')
+
+  useEffect(() => {
+    void ensureVisitSession()
+  }, [])
 
   useEffect(() => {
     if (activeTab !== 'game') {
