@@ -3,6 +3,10 @@ import type { LevelStartingDialog } from '../levels/types'
 
 const runSeenDialogs = new Set<string>()
 
+export const resetSeenDialogs = () => {
+  runSeenDialogs.clear()
+}
+
 export class DialogController {
   private readonly scene: Phaser.Scene
   private dialogIndex = 0

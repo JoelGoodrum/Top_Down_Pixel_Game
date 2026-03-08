@@ -8,7 +8,7 @@ import type { LevelData, Spawn } from '../levels/types'
 import { bootstrapLevel } from '../systems/bootstrapLevel'
 import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
-import { DialogController } from '../systems/dialogController'
+import { DialogController, resetSeenDialogs } from '../systems/dialogController'
 import { consumeVirtualEnterPress } from '../game/mobileControls'
 
 export default class GameScene extends Phaser.Scene {
@@ -24,6 +24,7 @@ export default class GameScene extends Phaser.Scene {
   private dialogController?: DialogController
   private endingStarted = false
   private waitingForRestart = false
+  private gameStartTime = 0
 
   // Option A: passed in from doorTransitions via scene.start(..., { spawn })
   private spawn?: Spawn
@@ -44,6 +45,10 @@ export default class GameScene extends Phaser.Scene {
     this.waitingForRestart = false
 
     this.playerState = persistentPlayerState
+
+    if (this.levelKey === 'officeInterior') {
+      this.gameStartTime = this.time.now
+    }
 
     if (this.levelKey === 'room115') {
       this.playerState.markVisitedRoom115()
@@ -97,6 +102,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.waitingForRestart) {
       if (this.wasEnterPressed()) {
         persistentPlayerState = new PlayerState()
+        resetSeenDialogs()
+        this.gameStartTime = this.time.now
         this.scene.restart({ levelKey: 'officeInterior' })
       }
 
@@ -168,11 +175,14 @@ export default class GameScene extends Phaser.Scene {
               alpha: 1,
               duration: 1000,
               onComplete: () => {
+                const completionDurationMs = Math.max(0, this.time.now - this.gameStartTime)
+                const completionTimeText = this.formatCompletionTime(completionDurationMs)
+
                 this.add
                   .text(
                     this.scale.width / 2,
                     this.scale.height / 2,
-                    'Thank you for playing the game!\n(press enter to restart)',
+                    `Thank you for playing the game!\nTime to beat: ${completionTimeText}\n(press enter to restart)`,
                     {
                       color: '#ffffff',
                       fontSize: '32px',
@@ -191,10 +201,23 @@ export default class GameScene extends Phaser.Scene {
       })
     })
   }
+
+  private formatCompletionTime(durationMs: number) {
+    const totalSeconds = Math.floor(durationMs / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+
+    if (minutes === 0) {
+      return `${seconds}s`
+    }
+
+    return `${minutes}m ${seconds}s`
+  }
 }
 
 let persistentPlayerState = new PlayerState()
 
 export const resetPersistentPlayerState = () => {
   persistentPlayerState = new PlayerState()
+  resetSeenDialogs()
 }
