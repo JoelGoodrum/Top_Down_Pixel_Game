@@ -54,6 +54,7 @@ export const GameSection = () => {
       const direction = button.dataset.direction as Direction
 
       const onPointerDown = (event: PointerEvent) => {
+        event.preventDefault()
         setDirectionFromPointer(event, direction, button)
       }
       const onPointerUp = (event: PointerEvent) => {
@@ -66,16 +67,22 @@ export const GameSection = () => {
         clearPointer(event)
       }
 
+      const onContextMenu = (event: MouseEvent) => {
+        event.preventDefault()
+      }
+
       button.addEventListener('pointerdown', onPointerDown)
       button.addEventListener('pointerup', onPointerUp)
       button.addEventListener('pointercancel', onPointerCancel)
       button.addEventListener('pointerleave', onPointerLeave)
+      button.addEventListener('contextmenu', onContextMenu)
 
       return () => {
         button.removeEventListener('pointerdown', onPointerDown)
         button.removeEventListener('pointerup', onPointerUp)
         button.removeEventListener('pointercancel', onPointerCancel)
         button.removeEventListener('pointerleave', onPointerLeave)
+        button.removeEventListener('contextmenu', onContextMenu)
       }
     })
 
@@ -136,6 +143,7 @@ export const GameSection = () => {
             type="button"
             className="mobile-enter-button"
             aria-label="Enter"
+            onContextMenu={() => false}
             onPointerDown={() => {
               pressVirtualEnter()
             }}
