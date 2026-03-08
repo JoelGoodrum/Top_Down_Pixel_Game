@@ -310,3 +310,13 @@ This project is intentionally structured to scale cleanly.
 For the detailed directory/file plan for the Lyla rescue storyline, see:
 
 - `docs/city-mystery-structure.md`
+
+## 🌐 Deploying to GitHub Pages
+
+This repository is configured to deploy `phaser-game` to GitHub Pages using GitHub Actions.
+
+1. In GitHub, go to **Settings → Pages**.
+2. Under **Build and deployment**, choose **GitHub Actions** as the source.
+3. Push to `main` and the workflow `.github/workflows/deploy-pages.yml` will build and publish the site.
+
+The Vite base path is set automatically during GitHub Actions builds using the repository name, so assets resolve correctly on Pages.
