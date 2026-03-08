@@ -186,3 +186,7 @@ export default class GameScene extends Phaser.Scene {
 }
 
 let persistentPlayerState = new PlayerState()
+
+export const resetPersistentPlayerState = () => {
+  persistentPlayerState = new PlayerState()
+}
