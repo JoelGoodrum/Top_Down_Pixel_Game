@@ -71,7 +71,11 @@ export function renderLevel(
 
         const it = scene.physics.add.staticImage(obj.x, obj.y, obj.name)
         it.setOrigin(0.5, 1)
-        it.setScale(SCALE.ITEMS)
+        if (obj.width > 1 && obj.height > 1) {
+          it.setDisplaySize(obj.width, obj.height)
+        } else {
+          it.setScale(SCALE.ITEMS)
+        }
         it.setDepth(DEPTH.BUILDING)
         it.refreshBody()
 
