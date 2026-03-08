@@ -1,12 +1,12 @@
 import { React, useEffect } from '../react'
 import {
   clearVirtualMovementState,
+  getVirtualMovementState,
   isMobileDevice,
   pressVirtualEnter,
   setVirtualMovementState,
 } from '../game/mobileControls'
-
-const JOYSTICK_THRESHOLD = 24
+import type { Direction } from '../entities/Player'
 
 export const GameSection = () => {
   useEffect(() => {
@@ -15,61 +15,75 @@ export const GameSection = () => {
       return
     }
 
-    const joystickElement = document.getElementById('mobile-joystick') as HTMLButtonElement | null
-    if (!joystickElement) {
+    const directionButtons = Array.from(
+      document.querySelectorAll<HTMLButtonElement>('[data-direction]')
+    )
+
+    if (directionButtons.length === 0) {
       return
     }
 
-    let activePointerId: number | null = null
+    const pointerMap = new Map<number, Direction>()
 
-    const updateFromPointer = (event: PointerEvent) => {
-      const rect = joystickElement.getBoundingClientRect()
-      const centerX = rect.left + rect.width / 2
-      const centerY = rect.top + rect.height / 2
-      const dx = event.clientX - centerX
-      const dy = event.clientY - centerY
-
+    const syncMovementState = () => {
+      const activeDirections = new Set(pointerMap.values())
       setVirtualMovementState({
-        left: dx < -JOYSTICK_THRESHOLD,
-        right: dx > JOYSTICK_THRESHOLD,
-        up: dy < -JOYSTICK_THRESHOLD,
-        down: dy > JOYSTICK_THRESHOLD,
+        up: activeDirections.has('up'),
+        down: activeDirections.has('down'),
+        left: activeDirections.has('left'),
+        right: activeDirections.has('right'),
       })
     }
 
-    const handlePointerDown = (event: PointerEvent) => {
-      activePointerId = event.pointerId
-      joystickElement.setPointerCapture(event.pointerId)
-      updateFromPointer(event)
+    const setDirectionFromPointer = (
+      event: PointerEvent,
+      direction: Direction,
+      element: HTMLButtonElement
+    ) => {
+      pointerMap.set(event.pointerId, direction)
+      element.setPointerCapture(event.pointerId)
+      syncMovementState()
     }
 
-    const handlePointerMove = (event: PointerEvent) => {
-      if (activePointerId !== event.pointerId) {
-        return
+    const clearPointer = (event: PointerEvent) => {
+      pointerMap.delete(event.pointerId)
+      syncMovementState()
+    }
+
+    const removeListeners = directionButtons.map((button) => {
+      const direction = button.dataset.direction as Direction
+
+      const onPointerDown = (event: PointerEvent) => {
+        setDirectionFromPointer(event, direction, button)
+      }
+      const onPointerUp = (event: PointerEvent) => {
+        clearPointer(event)
+      }
+      const onPointerCancel = (event: PointerEvent) => {
+        clearPointer(event)
+      }
+      const onPointerLeave = (event: PointerEvent) => {
+        clearPointer(event)
       }
 
-      updateFromPointer(event)
-    }
+      button.addEventListener('pointerdown', onPointerDown)
+      button.addEventListener('pointerup', onPointerUp)
+      button.addEventListener('pointercancel', onPointerCancel)
+      button.addEventListener('pointerleave', onPointerLeave)
 
-    const resetJoystick = (event: PointerEvent) => {
-      if (activePointerId !== event.pointerId) {
-        return
+      return () => {
+        button.removeEventListener('pointerdown', onPointerDown)
+        button.removeEventListener('pointerup', onPointerUp)
+        button.removeEventListener('pointercancel', onPointerCancel)
+        button.removeEventListener('pointerleave', onPointerLeave)
       }
+    })
 
-      activePointerId = null
-      clearVirtualMovementState()
-    }
-
-    joystickElement.addEventListener('pointerdown', handlePointerDown)
-    joystickElement.addEventListener('pointermove', handlePointerMove)
-    joystickElement.addEventListener('pointerup', resetJoystick)
-    joystickElement.addEventListener('pointercancel', resetJoystick)
+    const existingState = getVirtualMovementState()
+    setVirtualMovementState(existingState)
 
     return () => {
-      joystickElement.removeEventListener('pointerdown', handlePointerDown)
-      joystickElement.removeEventListener('pointermove', handlePointerMove)
-      joystickElement.removeEventListener('pointerup', resetJoystick)
-      joystickElement.removeEventListener('pointercancel', resetJoystick)
+      removeListeners.forEach((remove) => remove())
       clearVirtualMovementState()
     }
   }, [])
@@ -84,14 +98,35 @@ export const GameSection = () => {
       <div id="game-root" />
       {mobile ? (
         <div className="mobile-controls" aria-label="Mobile controls">
-          <button
-            id="mobile-joystick"
-            type="button"
-            className="mobile-joystick"
-            aria-label="Virtual joystick"
-          >
-            joystick
-          </button>
+          <div className="mobile-dpad" aria-label="Directional controls">
+            <button type="button" className="dpad-button dpad-up" aria-label="Move up" data-direction="up">
+              ▲
+            </button>
+            <button
+              type="button"
+              className="dpad-button dpad-left"
+              aria-label="Move left"
+              data-direction="left"
+            >
+              ◀
+            </button>
+            <button
+              type="button"
+              className="dpad-button dpad-right"
+              aria-label="Move right"
+              data-direction="right"
+            >
+              ▶
+            </button>
+            <button
+              type="button"
+              className="dpad-button dpad-down"
+              aria-label="Move down"
+              data-direction="down"
+            >
+              ▼
+            </button>
+          </div>
           <button
             type="button"
             className="mobile-enter-button"
