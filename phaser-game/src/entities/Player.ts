@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import { DEPTH, WALK_ANIMATION_FRAME_DURATION_MS } from '../config/constants'
+import { getVirtualMovementState } from '../game/mobileControls'
 
 export type Direction = 'up' | 'down' | 'left' | 'right'
 
@@ -55,6 +56,12 @@ export class Player {
   private speed: number
   private outfit: 'player' | 'labcoat'
   private isDestroyed = false
+  private previousDirectionDownState: Record<Direction, boolean> = {
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+  }
 
   constructor(
     scene: Phaser.Scene,
@@ -143,11 +150,12 @@ export class Player {
   private updateMovement() {
     let dx = 0
     let dy = 0
+    const virtualMovementState = getVirtualMovementState()
 
-    if (this.cursors.left?.isDown) dx -= 1
-    if (this.cursors.right?.isDown) dx += 1
-    if (this.cursors.up?.isDown) dy -= 1
-    if (this.cursors.down?.isDown) dy += 1
+    if (this.cursors.left?.isDown || virtualMovementState.left) dx -= 1
+    if (this.cursors.right?.isDown || virtualMovementState.right) dx += 1
+    if (this.cursors.up?.isDown || virtualMovementState.up) dy -= 1
+    if (this.cursors.down?.isDown || virtualMovementState.down) dy += 1
 
     if (dx === 0 && dy === 0) {
       this.isMoving = false
@@ -165,24 +173,36 @@ export class Player {
   }
 
   private updatePressedDirections() {
-    this.updateDirectionState('left', this.cursors.left)
-    this.updateDirectionState('right', this.cursors.right)
-    this.updateDirectionState('up', this.cursors.up)
-    this.updateDirectionState('down', this.cursors.down)
+    this.updateDirectionState('left')
+    this.updateDirectionState('right')
+    this.updateDirectionState('up')
+    this.updateDirectionState('down')
   }
 
-  private updateDirectionState(dir: Direction, key?: Phaser.Input.Keyboard.Key) {
-    if (!key) return
+  private updateDirectionState(dir: Direction) {
+    const directionDown = this.isDirectionDown(dir)
+    const wasDirectionDown = this.previousDirectionDownState[dir]
 
-    if (Phaser.Input.Keyboard.JustDown(key)) {
+    if (directionDown && !wasDirectionDown) {
       this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
       this.pressedDirections.push(dir)
-      return
     }
 
-    if (Phaser.Input.Keyboard.JustUp(key)) {
+    if (!directionDown && wasDirectionDown) {
       this.pressedDirections = this.pressedDirections.filter((d) => d !== dir)
     }
+
+    this.previousDirectionDownState[dir] = directionDown
+  }
+
+  private isDirectionDown(dir: Direction): boolean {
+    const virtualMovementState = getVirtualMovementState()
+
+    if (dir === 'left') return Boolean(this.cursors.left?.isDown || virtualMovementState.left)
+    if (dir === 'right') return Boolean(this.cursors.right?.isDown || virtualMovementState.right)
+    if (dir === 'up') return Boolean(this.cursors.up?.isDown || virtualMovementState.up)
+
+    return Boolean(this.cursors.down?.isDown || virtualMovementState.down)
   }
 
   private updateFacingFromPressedKeys() {

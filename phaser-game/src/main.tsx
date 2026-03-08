@@ -5,6 +5,7 @@ import { AboutSection } from './components/AboutSection'
 import { GameSection } from './components/GameSection'
 import { Navigation } from './components/Navigation'
 import { resetPersistentPlayerState } from './scenes/GameScene'
+import { isMobileDevice } from './game/mobileControls'
 
 type Tab = 'game' | 'about'
 
@@ -22,7 +23,7 @@ const App = () => {
     }
 
     resetPersistentPlayerState()
-    const game = createGame(gameRoot)
+    const game = createGame(gameRoot, { isMobile: isMobileDevice() })
 
     return () => {
       game.destroy(true)
@@ -46,5 +47,5 @@ if (!rootElement) {
 window.ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 )

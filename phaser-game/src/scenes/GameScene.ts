@@ -9,6 +9,7 @@ import { bootstrapLevel } from '../systems/bootstrapLevel'
 import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
 import { DialogController } from '../systems/dialogController'
+import { consumeVirtualEnterPress } from '../game/mobileControls'
 
 export default class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -94,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     if (this.waitingForRestart) {
-      if (this.enterKey && Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      if (this.wasEnterPressed()) {
         persistentPlayerState = new PlayerState()
         this.scene.restart({ levelKey: 'officeInterior' })
       }
@@ -105,7 +106,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.dialogController?.isActive()) {
       this.player?.stop()
 
-      if (this.enterKey && Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      if (this.wasEnterPressed()) {
         this.dialogController.advanceDialog()
       }
 
@@ -113,6 +114,13 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.player?.update()
+  }
+
+  private wasEnterPressed() {
+    const keyboardEnterPressed = this.enterKey
+      ? Phaser.Input.Keyboard.JustDown(this.enterKey)
+      : false
+    return keyboardEnterPressed || consumeVirtualEnterPress()
   }
 
   private playLeverEnding(lever: Phaser.Physics.Arcade.Image) {
