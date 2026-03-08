@@ -9,7 +9,13 @@ import { bootstrapLevel } from '../systems/bootstrapLevel'
 import { createHud, type Hud } from '../ui/hud'
 import { PlayerState } from '../entities/PlayerState'
 import { DialogController, resetSeenDialogs } from '../systems/dialogController'
-import { consumeVirtualEnterPress } from '../game/mobileControls'
+import { wasEnterPressed } from './gameSceneInput'
+import { playLeverEndingSequence } from './gameSceneEnding'
+import {
+  getPersistentPlayerState,
+  replacePersistentPlayerState,
+  resetPersistentPlayerState,
+} from './persistentPlayerState'
 
 export default class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -44,7 +50,7 @@ export default class GameScene extends Phaser.Scene {
     this.endingStarted = false
     this.waitingForRestart = false
 
-    this.playerState = persistentPlayerState
+    this.playerState = getPersistentPlayerState()
 
     if (this.levelKey === 'officeInterior') {
       this.gameStartTime = this.time.now
@@ -100,8 +106,8 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     if (this.waitingForRestart) {
-      if (this.wasEnterPressed()) {
-        persistentPlayerState = new PlayerState()
+      if (wasEnterPressed(this.enterKey)) {
+        replacePersistentPlayerState(new PlayerState())
         resetSeenDialogs()
         this.gameStartTime = this.time.now
         this.scene.restart({ levelKey: 'officeInterior' })
@@ -113,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.dialogController?.isActive()) {
       this.player?.stop()
 
-      if (this.wasEnterPressed()) {
+      if (wasEnterPressed(this.enterKey)) {
         this.dialogController.advanceDialog()
       }
 
@@ -123,101 +129,23 @@ export default class GameScene extends Phaser.Scene {
     this.player?.update()
   }
 
-  private wasEnterPressed() {
-    const keyboardEnterPressed = this.enterKey
-      ? Phaser.Input.Keyboard.JustDown(this.enterKey)
-      : false
-    return keyboardEnterPressed || consumeVirtualEnterPress()
-  }
-
   private playLeverEnding(lever: Phaser.Physics.Arcade.Image) {
     if (this.endingStarted) {
       return
     }
 
     this.endingStarted = true
-    this.player.stop()
-
-    const leverPosition = { x: lever.x, y: lever.y }
-    const leverScale = { x: lever.scaleX, y: lever.scaleY }
-    const holdingLever = this.add
-      .image(leverPosition.x, leverPosition.y, 'holding-lever-right')
-      .setOrigin(0.5, 1)
-      .setScale(leverScale.x, leverScale.y)
-      .setDepth(lever.depth)
-
-    this.player.destroy()
-    lever.destroy()
-
-    this.time.delayedCall(500, () => {
-      holdingLever.setTexture('holding-lever-left')
-
-      this.time.delayedCall(500, () => {
-        this.dialogController?.startDialogLines(
-          'dialog:quantumRoom:endingThanks',
-          ['Thank you...'],
-          true,
-          () => {
-            const blackScreen = this.add
-              .rectangle(
-                this.scale.width / 2,
-                this.scale.height / 2,
-                this.scale.width,
-                this.scale.height,
-                0x000000
-              )
-              .setScrollFactor(0)
-              .setAlpha(0)
-              .setDepth(1000)
-
-            this.tweens.add({
-              targets: blackScreen,
-              alpha: 1,
-              duration: 1000,
-              onComplete: () => {
-                const completionDurationMs = Math.max(0, this.time.now - this.gameStartTime)
-                const completionTimeText = this.formatCompletionTime(completionDurationMs)
-
-                this.add
-                  .text(
-                    this.scale.width / 2,
-                    this.scale.height / 2,
-                    `Thank you for playing the game!\nTime to beat: ${completionTimeText}\n(press enter to restart)`,
-                    {
-                      color: '#ffffff',
-                      fontSize: '32px',
-                      align: 'center',
-                    }
-                  )
-                  .setOrigin(0.5)
-                  .setScrollFactor(0)
-                  .setDepth(blackScreen.depth + 1)
-
-                this.waitingForRestart = true
-              },
-            })
-          }
-        )
-      })
+    playLeverEndingSequence({
+      scene: this,
+      lever,
+      player: this.player,
+      dialogController: this.dialogController,
+      gameStartTime: this.gameStartTime,
+      onReadyForRestart: () => {
+        this.waitingForRestart = true
+      },
     })
   }
-
-  private formatCompletionTime(durationMs: number) {
-    const totalSeconds = Math.floor(durationMs / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-
-    if (minutes === 0) {
-      return `${seconds}s`
-    }
-
-    return `${minutes}m ${seconds}s`
-  }
 }
 
-let persistentPlayerState = new PlayerState()
-
-export const resetPersistentPlayerState = () => {
-  persistentPlayerState = new PlayerState()
-  resetSeenDialogs()
-}
+export { resetPersistentPlayerState }
