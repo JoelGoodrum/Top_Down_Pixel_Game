@@ -34,7 +34,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   init(data: { levelKey?: LevelKey; spawn?: Spawn } = {}) {
-    this.levelKey = data.levelKey ?? 'towerHall'
+    this.levelKey = data.levelKey ?? 'lab'
     this.level = LEVELS[this.levelKey]
     this.spawn = data.spawn
 

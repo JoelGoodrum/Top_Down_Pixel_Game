@@ -145,7 +145,7 @@ export const city: LevelData = {
       width: 72,
       height: 50,
       targetLevel: 'loftHall',
-      targetSpawn: { x: 150, y: 500, facing: 'down' },
+      targetSpawn: { x: 55, y: 480, facing: 'down' },
     },
   ],
 }

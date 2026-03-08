@@ -12,23 +12,30 @@ export const lab: LevelData = {
     { key: 'lab-npc', path: '/assets/sprites/NPCs/lab-npc.png' },
   ],
 
-  images: [{ key: 'lab', x: 600, y: 400, scale: 0.6, originX: 0.85, originY: 0.5 }],
+  images: [{ key: 'lab', x: 600, y: 400, scale: 0.78, originX: 0.75, originY: 0.5 }],
 
   interactables: [
     {
+      type: 'collider',
+      x: 400,
+      y: 310,
+      width: 800,
+      height: 100,
+    },
+    {
       type: 'door',
-      x: 380,
-      y: 720,
-      width: 100,
+      x: 400,
+      y: 800,
+      width: 150,
       height: 60,
       targetLevel: 'towerHall', // exit back outside
       targetSpawn: { x: 240, y: 450, facing: 'down' },
     },
     {
       type: 'door',
-      x: 380,
-      y: 350,
-      width: 100,
+      x: 400,
+      y: 330,
+      width: 180,
       height: 60,
       targetLevel: 'quantumRoom', // exit back outside
       targetSpawn: { x: 400, y: 590, facing: 'up' },
@@ -36,8 +43,8 @@ export const lab: LevelData = {
     {
       type: 'npc',
       id: 'lab-npc',
-      x: 500,
-      y: 400,
+      x: 620,
+      y: 420,
       width: 140,
       height: 140,
       spriteKey: 'lab-npc',

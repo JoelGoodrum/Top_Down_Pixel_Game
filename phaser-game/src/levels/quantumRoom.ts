@@ -3,7 +3,7 @@ import type { LevelData } from './types'
 export const quantumRoom: LevelData = {
   world: {
     width: 800,
-    height: 700,
+    height: 750,
     backgroundColor: 0x222222,
   },
 
@@ -14,7 +14,7 @@ export const quantumRoom: LevelData = {
     { key: 'holding-lever-left', path: '/assets/sprites/interactables/holding-lever-left.png' },
   ],
 
-  images: [{ key: 'quantum-room', x: 600, y: 400, scale: 0.6, originX: 0.8, originY: 0.5 }],
+  images: [{ key: 'quantum-room', x: 600, y: 400, scale: 0.78, originX: 0.75, originY: 0.5 }],
 
   levelStartingDialog: {
     id: 'dialogSeen:quantumRoom',
@@ -23,6 +23,13 @@ export const quantumRoom: LevelData = {
   },
 
   interactables: [
+    {
+      type: 'collider',
+      x: 400,
+      y: 320,
+      width: 800,
+      height: 100,
+    },
     {
       type: 'interactable',
       name: 'lever',
