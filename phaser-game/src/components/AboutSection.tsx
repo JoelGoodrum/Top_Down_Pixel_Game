@@ -5,7 +5,7 @@ export const AboutSection = () => {
   const [stats, setStats] = useState<GameStats>({
     websiteVisits: '0',
     totalCompletions: '0',
-    averageCompletionTime: '0 minutes',
+    averageCompletionTime: '0s',
   })
 
   useEffect(() => {

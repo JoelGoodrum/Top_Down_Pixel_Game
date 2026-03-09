@@ -6,6 +6,18 @@ export type GameStats = {
   averageCompletionTime: string
 }
 
+const formatDuration = (durationSeconds: number): string => {
+  const safeSeconds = Math.max(0, Math.floor(durationSeconds))
+  const minutes = Math.floor(safeSeconds / 60)
+  const seconds = safeSeconds % 60
+
+  if (minutes === 0) {
+    return `${seconds}s`
+  }
+
+  return `${minutes}m ${seconds}s`
+}
+
 /*
   Creates a visit session and records a website visit.
 
@@ -51,7 +63,11 @@ export async function ensureVisitSession(): Promise<void> {
   durationSeconds should be the total runtime of the game.
 */
 export async function recordGameCompletion(durationSeconds: number): Promise<void> {
-  const sessionId = sessionStorage.getItem('game_session_id')
+  let sessionId = sessionStorage.getItem('game_session_id')
+
+  if (!sessionId) {
+    sessionId = await createVisitSession()
+  }
 
   if (!sessionId) {
     console.warn('No session id found, skipping completion record')
@@ -59,7 +75,7 @@ export async function recordGameCompletion(durationSeconds: number): Promise<voi
   }
 
   try {
-    await fetch(`${API_BASE}/beat`, {
+    const res = await fetch(`${API_BASE}/beat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,6 +85,13 @@ export async function recordGameCompletion(durationSeconds: number): Promise<voi
         duration_seconds: durationSeconds,
       }),
     })
+
+    if (!res.ok) {
+      throw new Error('Failed to record completion')
+    }
+
+    // A session is single-use for /beat. Rotate to a fresh one so replays can be recorded.
+    await createVisitSession()
   } catch (err) {
     console.error('recordGameCompletion failed', err)
   }
@@ -88,12 +111,11 @@ export async function fetchGameStats(): Promise<GameStats> {
     const data = await res.json()
 
     const avgSeconds = data.average_completion_seconds ?? 0
-    const avgMinutes = Math.round(avgSeconds / 60)
 
     return {
       websiteVisits: String(data.total_visits ?? 0),
       totalCompletions: String(data.total_beats ?? 0),
-      averageCompletionTime: `${avgMinutes} minutes`,
+      averageCompletionTime: formatDuration(avgSeconds),
     }
   } catch (err) {
     console.error('fetchGameStats failed', err)
@@ -101,7 +123,7 @@ export async function fetchGameStats(): Promise<GameStats> {
     return {
       websiteVisits: '0',
       totalCompletions: '0',
-      averageCompletionTime: '0 minutes',
+      averageCompletionTime: '0s',
     }
   }
 }
